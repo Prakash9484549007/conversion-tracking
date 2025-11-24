@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="contact-container">
+        <form action="send_mail.php" method="POST">
+            <h2>Contact Us</h2>
+            
+            <label>Your Name</label>
+            <input type="text" name="full_name" required>
+
+            <label>Your Email</label>
+            <input type="email" name="email" required>
+
+            <label>Mobile Number</label>
+            <input type="tel" name="mobile" placeholder="10-digit number" pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number" required>
+
+            <label>Subject</label>
+            <input type="text" name="subject" required>
+
+            <label>Message</label>
+            <textarea name="message" rows="5" required></textarea>
+
+            <button type="submit">Send Message</button>
+        </form>
+    </div>
+
+</body>
+</html>
