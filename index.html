@@ -1,25 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us</title>
-    <link rel="stylesheet" href="style.css">
-</head>
 <body>
 
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            // REPLACE THIS WITH YOUR PUBLIC KEY from EmailJS Dashboard > Account
+            emailjs.init("KdGRcRiaKId5_bMWn");
+        })();
+    </script>
+
     <div class="contact-container">
-        <form action="send_mail.php" method="POST">
+        <form id="contact-form">
             <h2>Contact Us</h2>
             
             <label>Your Name</label>
             <input type="text" name="full_name" required>
 
             <label>Your Email</label>
-            <input type="email" name="email" required>
+            <input type="email" name="email" id="email_field" required>
 
             <label>Mobile Number</label>
-            <input type="tel" name="mobile" placeholder="10-digit number" pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number" required>
+            <input type="tel" name="mobile" id="mobile_field" placeholder="10-digit number" required>
 
             <label>Subject</label>
             <input type="text" name="subject" required>
@@ -27,9 +27,37 @@
             <label>Message</label>
             <textarea name="message" rows="5" required></textarea>
 
-            <button type="submit">Send Message</button>
+            <button type="submit" id="submit_btn">Send Message</button>
         </form>
     </div>
 
+    <script>
+        document.getElementById('contact-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Stop the form from reloading the page
+
+            const btn = document.getElementById('submit_btn');
+            btn.innerText = 'Sending...';
+
+            // These IDs come from your EmailJS dashboard
+            const serviceID = 'service_9it87w5';
+            const templateID = 'template_57mjstm';
+
+            emailjs.sendForm(serviceID, templateID, this)
+                .then(() => {
+                    // SUCCESS!
+                    
+                    // Grab values for GTM Tracking
+                    const email = document.getElementById('email_field').value;
+                    const mobile = document.getElementById('mobile_field').value;
+
+                    // Redirect to Thank You page with data (Just like the PHP did)
+                    window.location.href = `thank-you.html?email=${encodeURIComponent(email)}&mobile=${encodeURIComponent(mobile)}`;
+                }, (err) => {
+                    // ERROR
+                    btn.innerText = 'Send Message';
+                    alert(JSON.stringify(err));
+                });
+        });
+    </script>
+
 </body>
-</html>
