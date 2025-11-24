@@ -1,9 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us</title>
+    <link rel="stylesheet" href="style.css"> 
+    
+    </head>
 <body>
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
         (function() {
-            // REPLACE THIS WITH YOUR PUBLIC KEY from EmailJS Dashboard > Account
+            // Your Public Key
             emailjs.init("KdGRcRiaKId5_bMWn");
         })();
     </script>
@@ -33,31 +42,30 @@
 
     <script>
         document.getElementById('contact-form').addEventListener('submit', function(event) {
-            event.preventDefault(); // Stop the form from reloading the page
+            event.preventDefault(); // Stop the form from reloading
 
             const btn = document.getElementById('submit_btn');
             btn.innerText = 'Sending...';
 
-            // These IDs come from your EmailJS dashboard
             const serviceID = 'service_9it87w5';
             const templateID = 'template_57mjstm';
 
             emailjs.sendForm(serviceID, templateID, this)
                 .then(() => {
                     // SUCCESS!
-                    
-                    // Grab values for GTM Tracking
                     const email = document.getElementById('email_field').value;
                     const mobile = document.getElementById('mobile_field').value;
 
-                    // Redirect to Thank You page with data (Just like the PHP did)
+                    // Redirect to Thank You page with data
                     window.location.href = `thank-you.html?email=${encodeURIComponent(email)}&mobile=${encodeURIComponent(mobile)}`;
                 }, (err) => {
                     // ERROR
                     btn.innerText = 'Send Message';
                     alert(JSON.stringify(err));
+                    console.error('EmailJS Error:', err);
                 });
         });
     </script>
 
 </body>
+</html>

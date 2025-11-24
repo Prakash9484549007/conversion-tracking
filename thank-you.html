@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thank You!</title>
+    <script>
+  // Helper function to get URL parameters
+  function getQueryParam(param) {
+      let urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+  }
+
+  // Push data to GTM "Data Layer"
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+      'event': 'form_submission_success', 
+      'user_email': getQueryParam('email'),
+      'user_mobile': getQueryParam('mobile')
+  });
+</script>
     
     <style>
         body {
