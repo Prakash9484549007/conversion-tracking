@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us</title>
-    <link rel="stylesheet" href="style.css"> 
-    
-    </head>
+    <title>AJAX Contact Form</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 <body>
+
     <nav>
         
         <div class="dropdown">
@@ -29,14 +29,14 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
         (function() {
-            // Your Public Key
-            emailjs.init("KdGRcRiaKId5_bMWn");
+            emailjs.init("KdGRcRiaKId5_bMWn"); // Your Public Key
         })();
     </script>
 
     <div class="contact-container">
-        <form id="contact-form">
-            <h2>Redirect Contact Form</h2>
+        
+        <form id="ajax-contact-form">
+            <h2>AJAX Contact Form</h2>
             
             <label>Your Name</label>
             <input type="text" name="full_name" required>
@@ -53,72 +53,74 @@
             <label>Message</label>
             <textarea name="message" rows="5" required></textarea>
 
-            <button type="submit" id="submit_btn">Send Message</button>
+            <button type="submit" id="submit_btn">Send Message (No Reload)</button>
         </form>
-    </div>
 
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script type="text/javascript">
-        (function() {
-            // Your Public Key (Already filled from your previous file)
-            emailjs.init("KdGRcRiaKId5_bMWn");
-        })();
-    </script>
+        <div id="success_msg" class="success-message">
+            <h2>✔ Message Sent!</h2>
+            <p>Thank you. We have received your message without reloading the page.</p>
+            <button onclick="location.reload()" style="margin-top:10px; background:#333;">Send Another</button>
+        </div>
+
+    </div>
 
     <script>
         // ▼▼▼ PASTE YOUR GOOGLE WEB APP URL HERE ▼▼▼
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyq_fU6Tpsa3S3nzHCdWIVVEMcP2-PzdnzJI3iqxgwH56JbbyfJ6o43fZKxcxfgTxOv/exec';
+        const scriptURL = 'https://script.google.com/macros/s/YOUR_LONG_SCRIPT_URL_HERE/exec';
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-        const form = document.getElementById('contact-form');
+        const form = document.getElementById('ajax-contact-form');
+        const successMsg = document.getElementById('success_msg');
         const btn = document.getElementById('submit_btn');
 
         form.addEventListener('submit', e => {
             e.preventDefault();
             
-            // 1. Lock the button so they don't click twice
             btn.disabled = true;
             btn.innerText = 'Processing...';
 
-            // 2. Prepare Data for Google Sheets
+            // 1. Prepare Data
             let requestBody = new FormData(form);
+            const emailVal = document.getElementById('email_field').value;
+            const mobileVal = document.getElementById('mobile_field').value;
 
-            // 3. Send to Google Sheets FIRST
+            // 2. Send to Google Sheets
             fetch(scriptURL, { method: 'POST', body: requestBody })
                 .then(response => {
-                    console.log('Google Sheet Success!', response);
+                    console.log('Sheet Success!', response);
                     
-                    // 4. Update Button Status
-                    btn.innerText = 'Sending Email...';
-
-                    // 5. NOW send the Email via EmailJS
-                    // (I used your IDs from your screenshot)
+                    // 3. Send Email
                     const serviceID = 'service_9it87w5'; 
                     const templateID = 'template_57mjstm';
-                    
                     return emailjs.sendForm(serviceID, templateID, form);
                 })
                 .then(() => {
-                    // 6. SUCCESS! Both Sheet and Email are done.
+                    // 4. AJAX SUCCESS (The Magic Part)
                     
-                    // Grab values for GTM Tracking URL
-                    const email = document.getElementById('email_field').value;
-                    const mobile = document.getElementById('mobile_field').value;
+                    // Hide the form
+                    form.style.display = 'none';
+                    
+                    // Show the success message
+                    successMsg.style.display = 'block';
 
-                    // Redirect to Thank You Page
-                    window.location.href = `thank-you.html?email=${encodeURIComponent(email)}&mobile=${encodeURIComponent(mobile)}`;
+                    // 5. TRACKING (Manually fire GTM event since URL didn't change)
+                    window.dataLayer = window.dataLayer || [];
+                    window.dataLayer.push({
+                        'event': 'form_submission_success',
+                        'user_email': emailVal,
+                        'user_mobile': mobileVal
+                    });
+                    
+                    console.log("AJAX Success: Tracking Event Fired");
                 })
                 .catch(error => {
                     console.error('Error!', error.message);
-                    alert("Something went wrong. Please check your internet connection.");
-                    // Re-enable button if it fails
+                    alert("Error sending message.");
                     btn.disabled = false;
                     btn.innerText = 'Send Message';
                 });
         });
     </script>
-
-</body>
 
 </body>
 </html>

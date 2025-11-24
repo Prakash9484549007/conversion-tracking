@@ -1,3 +1,98 @@
+/* --- NAVIGATION BAR STYLES (Fixed) --- */
+nav {
+    background-color: #333;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    font-family: Arial, sans-serif;
+    
+    /* THE FIX: Use Flexbox and visible overflow */
+    display: flex;
+    align-items: center;
+    overflow: visible; 
+}
+
+/* Links inside the navbar */
+nav a {
+    font-size: 16px;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+/* The Dropdown Container */
+.dropdown {
+    position: relative; /* Keeps the menu attached to the button */
+}
+
+/* Dropdown Button */
+.dropdown .dropbtn {
+    font-size: 16px;  
+    border: none;
+    outline: none;
+    color: white;
+    padding: 14px 16px;
+    background-color: inherit;
+    font-family: inherit;
+    margin: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+/* Hover Effects */
+nav a:hover, .dropdown:hover .dropbtn {
+    background-color: #111;
+}
+
+/* Dropdown Content (The Menu Itself) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 200px; /* Made it slightly wider for readability */
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1001; /* Ensure it sits ON TOP of everything */
+    top: 100%; /* Pushes it exactly below the navbar */
+    left: 0;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+/* Show on Hover */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Adjust body to not hide behind fixed nav */
+body {
+    padding-top: 60px; 
+}
+
+/* --- AJAX SUCCESS MESSAGE STYLES --- */
+.success-message {
+    display: none; /* Hidden by default */
+    text-align: center;
+    padding: 20px;
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    border-radius: 5px;
+    margin-top: 20px;
+}
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
