@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WPForms - Ajax Version</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Specific Styles for WPForms Look */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin: 15px 0 25px 0;
+        }
+        .checkbox-container input {
+            width: auto; /* Prevent full width */
+            margin: 0 10px 0 0;
+            cursor: pointer;
+        }
+        .checkbox-container label {
+            margin: 0;
+            font-weight: normal;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        /* File Upload Style */
+        input[type="file"] {
+            background: white;
+            padding: 10px;
+            border: 1px dashed #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="dropdown">
+            <button class="dropbtn">Contact Form 7 <i class="fa fa-caret-down"></i></button>
+            <div class="dropdown-content">
+                <a href="index.html">Redirect Form</a>
+                <a href="ajax.html">AJAX Form</a>
+            </div>
+        </div> 
+        <a href="wp-form.html" style="background-color: #4CAF50;">WP Form</a>
+        <a href="#fluentform">Fluent Form</a>
+    </nav>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init("KdGRcRiaKId5_bMWn"); // Your Public Key
+        })();
+    </script>
+
+    <div class="contact-container">
+        
+        <form id="wp-ajax-form">
+            <h2>WPForms Demo</h2>
+            <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Standard AJAX form with file & validation.</p>
+            
+            <label>Full Name</label>
+            <input type="text" name="full_name" required>
+
+            <label>Email Address</label>
+            <input type="email" name="email" id="email_field" required>
+
+            <label>Phone Number</label>
+            <input type="tel" name="mobile" id="mobile_field" placeholder="10-digit number" required>
+
+            <label>Subject</label>
+            <input type="text" name="subject" required>
+
+            <label>Message</label>
+            <textarea name="message" rows="4" required></textarea>
+
+            <label>Upload Document (PDF/JPG)</label>
+            <input type="file" name="my_file">
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="terms_checkbox" required>
+                <label for="terms_checkbox">I agree to the Terms and Conditions</label>
+            </div>
+
+            <button type="submit" id="submit_btn">Send Application</button>
+        </form>
+
+        <div id="success_msg" class="success-message">
+            <h2>✔ Application Sent!</h2>
+            <p>We have received your details and documents.</p>
+            <button onclick="location.reload()" style="margin-top:10px; background:#333;">Submit Another</button>
+        </div>
+
+    </div>
+
+    <script>
+    // ▼▼▼ PASTE YOUR GOOGLE WEB APP URL HERE ▼▼▼
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyq_fU6Tpsa3S3nzHCdWIVVEMcP2-PzdnzJI3iqxgwH56JbbyfJ6o43fZKxcxfgTxOv/exec';
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+    const form = document.getElementById('wp-ajax-form');
+    const successMsg = document.getElementById('success_msg');
+    const btn = document.getElementById('submit_btn');
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+
+        const fileInput = document.querySelector('input[name="my_file"]');
+        const file = fileInput.files[0];
+
+        // Validation: Check Terms
+        if(!document.getElementById('terms_checkbox').checked) {
+            alert("Please agree to the terms.");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = 'Uploading...';
+
+        // Helper function to read file as Base64
+        const reader = new FileReader();
+        
+        // If file is selected, read it. If not, run the "null" path.
+        if (file) {
+            reader.readAsDataURL(file);
+        } else {
+            // No file uploaded? Just send the text data
+            sendDataToSheet(null);
+            return; // Stop here, the reader.onload will handle the rest if file exists
+        }
+
+        reader.onload = function(e) {
+            // Get the raw Base64 string (remove the "data:image/png;base64," prefix)
+            const rawBase64 = reader.result.split(',')[1];
+            
+            const fileInfo = {
+                fileData: rawBase64,
+                mimeType: file.type,
+                fileName: file.name
+            };
+            sendDataToSheet(fileInfo);
+        };
+
+        function sendDataToSheet(fileInfo) {
+            // 1. Construct the JSON Payload
+            const payload = {
+                full_name: document.querySelector('input[name="full_name"]').value,
+                email: document.querySelector('input[name="email"]').value,
+                mobile: document.querySelector('input[name="mobile"]').value,
+                subject: document.querySelector('input[name="subject"]').value,
+                message: document.querySelector('textarea[name="message"]').value,
+                // Spread the file info if it exists
+                ...(fileInfo || {}) 
+            };
+
+            // 2. Send JSON to Google Script
+            fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify(payload) // Note: Sending JSON now, not FormData
+            })
+            .then(response => {
+                console.log('Sheet Success!');
+                
+                // 3. Send Email (Standard EmailJS)
+                const serviceID = 'service_9it87w5'; 
+                const templateID = 'template_57mjstm';
+                return emailjs.sendForm(serviceID, templateID, form);
+            })
+            .then(() => {
+                // 4. Success UI
+                form.style.display = 'none';
+                successMsg.style.display = 'block';
+                
+                // 5. Tracking
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({
+                    'event': 'form_submission_success',
+                    'user_email': payload.email
+                });
+            })
+            .catch(error => {
+                console.error('Error!', error);
+                alert("Error submitting form. Please try again.");
+                btn.disabled = false;
+                btn.innerText = 'Send Application';
+            });
+        }
+    });
+</script>
