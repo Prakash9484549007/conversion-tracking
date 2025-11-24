@@ -40,32 +40,68 @@
         </form>
     </div>
 
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            // Your Public Key (Already filled from your previous file)
+            emailjs.init("KdGRcRiaKId5_bMWn");
+        })();
+    </script>
+
     <script>
-        document.getElementById('contact-form').addEventListener('submit', function(event) {
-            event.preventDefault(); // Stop the form from reloading
+        // ▼▼▼ PASTE YOUR GOOGLE WEB APP URL HERE ▼▼▼
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyq_fU6Tpsa3S3nzHCdWIVVEMcP2-PzdnzJI3iqxgwH56JbbyfJ6o43fZKxcxfgTxOv/exec';
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-            const btn = document.getElementById('submit_btn');
-            btn.innerText = 'Sending...';
+        const form = document.getElementById('contact-form');
+        const btn = document.getElementById('submit_btn');
 
-            const serviceID = 'service_9it87w5';
-            const templateID = 'template_57mjstm';
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            
+            // 1. Lock the button so they don't click twice
+            btn.disabled = true;
+            btn.innerText = 'Processing...';
 
-            emailjs.sendForm(serviceID, templateID, this)
+            // 2. Prepare Data for Google Sheets
+            let requestBody = new FormData(form);
+
+            // 3. Send to Google Sheets FIRST
+            fetch(scriptURL, { method: 'POST', body: requestBody })
+                .then(response => {
+                    console.log('Google Sheet Success!', response);
+                    
+                    // 4. Update Button Status
+                    btn.innerText = 'Sending Email...';
+
+                    // 5. NOW send the Email via EmailJS
+                    // (I used your IDs from your screenshot)
+                    const serviceID = 'service_9it87w5'; 
+                    const templateID = 'template_57mjstm';
+                    
+                    return emailjs.sendForm(serviceID, templateID, form);
+                })
                 .then(() => {
-                    // SUCCESS!
+                    // 6. SUCCESS! Both Sheet and Email are done.
+                    
+                    // Grab values for GTM Tracking URL
                     const email = document.getElementById('email_field').value;
                     const mobile = document.getElementById('mobile_field').value;
 
-                    // Redirect to Thank You page with data
+                    // Redirect to Thank You Page
                     window.location.href = `thank-you.html?email=${encodeURIComponent(email)}&mobile=${encodeURIComponent(mobile)}`;
-                }, (err) => {
-                    // ERROR
+                })
+                .catch(error => {
+                    console.error('Error!', error.message);
+                    alert("Something went wrong. Please check your internet connection.");
+                    // Re-enable button if it fails
+                    btn.disabled = false;
                     btn.innerText = 'Send Message';
-                    alert(JSON.stringify(err));
-                    console.error('EmailJS Error:', err);
                 });
         });
     </script>
+
+</body>
 
 </body>
 </html>
