@@ -66,57 +66,50 @@
     </script>
 
     <script>
-        // ▼▼▼ PASTE YOUR GOOGLE WEB APP URL HERE ▼▼▼
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyq_fU6Tpsa3S3nzHCdWIVVEMcP2-PzdnzJI3iqxgwH56JbbyfJ6o43fZKxcxfgTxOv/exec';
+    // ▼▼▼ PASTE YOUR NEW GOOGLE SCRIPT URL HERE ▼▼▼
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxMjZoxFV_ffqSV_a25QUC01U0q3K17CTT9LcRrYyvIvjprIeis-SFJwAYk1hCz8iqh/exec'; 
+
+    const form = document.getElementById('contact-form');
+    const btn = document.getElementById('submit_btn');
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        btn.disabled = true;
+        btn.innerText = 'Processing...';
+
+        // 1. Convert Form Data to JSON
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData); 
+        
+        // ▼▼▼ NEW LINE: TELL IT WHICH SHEET TO USE ▼▼▼
+        data.sheetName = 'ContactForm7'; 
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-        const form = document.getElementById('contact-form');
-        const btn = document.getElementById('submit_btn');
-
-        form.addEventListener('submit', e => {
-            e.preventDefault();
-            
-            // 1. Lock the button so they don't click twice
-            btn.disabled = true;
-            btn.innerText = 'Processing...';
-
-            // 2. Prepare Data for Google Sheets
-            let requestBody = new FormData(form);
-
-            // 3. Send to Google Sheets FIRST
-            fetch(scriptURL, { method: 'POST', body: requestBody })
-                .then(response => {
-                    console.log('Google Sheet Success!', response);
-                    
-                    // 4. Update Button Status
-                    btn.innerText = 'Sending Email...';
-
-                    // 5. NOW send the Email via EmailJS
-                    // (I used your IDs from your screenshot)
-                    const serviceID = 'service_9it87w5'; 
-                    const templateID = 'template_57mjstm';
-                    
-                    return emailjs.sendForm(serviceID, templateID, form);
-                })
-                .then(() => {
-                    // 6. SUCCESS! Both Sheet and Email are done.
-                    
-                    // Grab values for GTM Tracking URL
-                    const email = document.getElementById('email_field').value;
-                    const mobile = document.getElementById('mobile_field').value;
-
-                    // Redirect to Thank You Page
-                    window.location.href = `thank-you.html?email=${encodeURIComponent(email)}&mobile=${encodeURIComponent(mobile)}`;
-                })
-                .catch(error => {
-                    console.error('Error!', error.message);
-                    alert("Something went wrong. Please check your internet connection.");
-                    // Re-enable button if it fails
-                    btn.disabled = false;
-                    btn.innerText = 'Send Message';
-                });
+        // 2. Send JSON to Google Sheets
+        fetch(scriptURL, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            console.log('Sheet Success!');
+            const serviceID = 'service_9it87w5'; 
+            const templateID = 'template_57mjstm';
+            return emailjs.sendForm(serviceID, templateID, form);
+        })
+        .then(() => {
+            // 3. Redirect
+            const email = document.getElementById('email_field').value;
+            const mobile = document.getElementById('mobile_field').value;
+            window.location.href = `thank-you.html?email=${encodeURIComponent(email)}&mobile=${encodeURIComponent(mobile)}`;
+        })
+        .catch(error => {
+            console.error('Error!', error);
+            alert("Error. Please try again.");
+            btn.disabled = false;
+            btn.innerText = 'Send Message';
         });
-    </script>
+    });
+</script>
 
 </body>
 

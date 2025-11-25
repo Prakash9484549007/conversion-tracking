@@ -95,7 +95,7 @@
 
     <script>
     // ▼▼▼ PASTE YOUR GOOGLE WEB APP URL HERE ▼▼▼
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyq_fU6Tpsa3S3nzHCdWIVVEMcP2-PzdnzJI3iqxgwH56JbbyfJ6o43fZKxcxfgTxOv/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxMjZoxFV_ffqSV_a25QUC01U0q3K17CTT9LcRrYyvIvjprIeis-SFJwAYk1hCz8iqh/exec';
     // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     const form = document.getElementById('wp-ajax-form');
@@ -144,6 +144,7 @@
         function sendDataToSheet(fileInfo) {
             // 1. Construct the JSON Payload
             const payload = {
+                sheetName: 'WPForms', // <--- ADD THIS LINE (Must match tab name exactly)
                 full_name: document.querySelector('input[name="full_name"]').value,
                 email: document.querySelector('input[name="email"]').value,
                 mobile: document.querySelector('input[name="mobile"]').value,

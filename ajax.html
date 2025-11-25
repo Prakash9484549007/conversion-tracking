@@ -65,62 +65,58 @@
     </div>
 
     <script>
-        // ▼▼▼ PASTE YOUR GOOGLE WEB APP URL HERE ▼▼▼
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyq_fU6Tpsa3S3nzHCdWIVVEMcP2-PzdnzJI3iqxgwH56JbbyfJ6o43fZKxcxfgTxOv/exec';
+    // ▼▼▼ PASTE YOUR NEW GOOGLE SCRIPT URL HERE ▼▼▼
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxMjZoxFV_ffqSV_a25QUC01U0q3K17CTT9LcRrYyvIvjprIeis-SFJwAYk1hCz8iqh/exec'; 
+
+    const form = document.getElementById('ajax-contact-form');
+    const successMsg = document.getElementById('success_msg');
+    const btn = document.getElementById('submit_btn');
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        btn.disabled = true;
+        btn.innerText = 'Processing...';
+
+        // 1. Convert Form Data to JSON
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData); 
+        
+        // ▼▼▼ NEW LINE: TELL IT WHICH SHEET TO USE ▼▼▼
+        data.sheetName = 'ContactForm7'; 
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-        const form = document.getElementById('ajax-contact-form');
-        const successMsg = document.getElementById('success_msg');
-        const btn = document.getElementById('submit_btn');
+        // 2. Send JSON to Google Sheets
+        fetch(scriptURL, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            console.log('Sheet Success!');
+            const serviceID = 'service_9it87w5'; 
+            const templateID = 'template_57mjstm';
+            return emailjs.sendForm(serviceID, templateID, form);
+        })
+        .then(() => {
+            // 3. Show Success Message
+            form.style.display = 'none';
+            successMsg.style.display = 'block';
 
-        form.addEventListener('submit', e => {
-            e.preventDefault();
-            
-            btn.disabled = true;
-            btn.innerText = 'Processing...';
-
-            // 1. Prepare Data
-            let requestBody = new FormData(form);
-            const emailVal = document.getElementById('email_field').value;
-            const mobileVal = document.getElementById('mobile_field').value;
-
-            // 2. Send to Google Sheets
-            fetch(scriptURL, { method: 'POST', body: requestBody })
-                .then(response => {
-                    console.log('Sheet Success!', response);
-                    
-                    // 3. Send Email
-                    const serviceID = 'service_9it87w5'; 
-                    const templateID = 'template_57mjstm';
-                    return emailjs.sendForm(serviceID, templateID, form);
-                })
-                .then(() => {
-                    // 4. AJAX SUCCESS (The Magic Part)
-                    
-                    // Hide the form
-                    form.style.display = 'none';
-                    
-                    // Show the success message
-                    successMsg.style.display = 'block';
-
-                    // 5. TRACKING (Manually fire GTM event since URL didn't change)
-                    window.dataLayer = window.dataLayer || [];
-                    window.dataLayer.push({
-                        'event': 'form_submission_success',
-                        'user_email': emailVal,
-                        'user_mobile': mobileVal
-                    });
-                    
-                    console.log("AJAX Success: Tracking Event Fired");
-                })
-                .catch(error => {
-                    console.error('Error!', error.message);
-                    alert("Error sending message.");
-                    btn.disabled = false;
-                    btn.innerText = 'Send Message';
-                });
+            // 4. Tracking
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                'event': 'form_submission_success',
+                'user_email': data.email,
+                'user_mobile': data.mobile
+            });
+        })
+        .catch(error => {
+            console.error('Error!', error);
+            alert("Error. Please try again.");
+            btn.disabled = false;
+            btn.innerText = 'Send Message';
         });
-    </script>
+    });
+</script>
 
 </body>
 </html>
