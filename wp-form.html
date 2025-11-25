@@ -136,7 +136,8 @@
         }
 
         reader.onload = function(e) {
-            // Get the raw Base64 string (remove the "data:image/png;base64," prefix)
+            console.log("File read successfully. Starting upload..."); // Debug log
+            
             const rawBase64 = reader.result.split(',')[1];
             
             const fileInfo = {
@@ -144,6 +145,10 @@
                 mimeType: file.type,
                 fileName: file.name
             };
+            
+            // Log the payload size to check if it's too big
+            console.log("Payload size:", JSON.stringify(fileInfo).length); 
+
             sendDataToSheet(fileInfo);
         };
 
@@ -161,24 +166,39 @@
             };
 
             // 2. Send JSON to Google Script
+            // 2. Send JSON to Google Script
             fetch(scriptURL, {
                 method: 'POST',
-                body: JSON.stringify(payload) // Note: Sending JSON now, not FormData
+                body: JSON.stringify(payload)
             })
-            .then(response => {
-                console.log('Sheet Success!');
+            .then(response => response.json()) // <--- VITAL CHANGE: Read the response JSON
+            .then(data => {
+                // CHECK IF SCRIPT FAILED
+                if (data.result !== 'success') {
+                    throw new Error(data.error || "Script returned an error");
+                }
+
+                console.log('Sheet Success!', data);
                 
-                // 3. Send Email (Standard EmailJS)
+                // 3. Send Email (Manual Mode)
                 const serviceID = 'service_9it87w5'; 
                 const templateID = 'template_57mjstm';
-                return emailjs.sendForm(serviceID, templateID, form);
+                
+                const emailParams = {
+                    full_name: document.querySelector('input[name="full_name"]').value,
+                    email: document.querySelector('input[name="email"]').value,
+                    mobile: document.querySelector('input[name="mobile"]').value,
+                    subject: document.querySelector('input[name="subject"]').value,
+                    message: document.querySelector('textarea[name="message"]').value
+                };
+
+                return emailjs.send(serviceID, templateID, emailParams);
             })
             .then(() => {
                 // 4. Success UI
                 form.style.display = 'none';
                 successMsg.style.display = 'block';
                 
-                // 5. Tracking
                 window.dataLayer = window.dataLayer || [];
                 window.dataLayer.push({
                     'event': 'form_submission_success',
@@ -187,7 +207,8 @@
             })
             .catch(error => {
                 console.error('Error!', error);
-                alert("Error submitting form. Please try again.");
+                // THIS WILL NOW SHOW THE REAL GOOGLE ERROR
+                alert("Submission Failed: " + error.message); 
                 btn.disabled = false;
                 btn.innerText = 'Send Application';
             });
