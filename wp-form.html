@@ -108,6 +108,12 @@
         const fileInput = document.querySelector('input[name="my_file"]');
         const file = fileInput.files[0];
 
+        // 1. LIMIT FILE SIZE (Max 2MB)
+        if (file && file.size > 2 * 1024 * 1024) {
+            alert("File is too large! Please upload a file smaller than 2MB.");
+            return; // Stop everything
+        }
+
         // Validation: Check Terms
         if(!document.getElementById('terms_checkbox').checked) {
             alert("Please agree to the terms.");
