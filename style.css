@@ -12,6 +12,24 @@ nav {
     align-items: center;
     overflow: visible; 
 }
+/* Site Brand / Heading Style */
+.nav-brand {
+    font-size: 22px;
+    font-weight: bold;
+    color: #fff;
+    padding: 0 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-right: auto; /* This pushes all other links to the RIGHT side */
+    display: flex;
+    align-items: center;
+}
+
+/* Make the word 'Conversion' Green for style */
+.nav-brand span {
+    color: #4CAF50;
+    margin-right: 5px;
+}
 
 /* Links inside the navbar */
 nav a {
