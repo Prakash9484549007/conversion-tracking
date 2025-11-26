@@ -1,148 +1,391 @@
-/* --- MAIN HEADER (Fixed Top) --- */
+/* --- GLOBAL RESETS --- */
+body {
+    background-color: #f0f2f5;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding-top: 140px; 
+    
+    /* THE FIX: Stack items vertically instead of side-by-side */
+    display: flex;             
+    flex-direction: column;    /* <--- THIS IS KEY */
+    align-items: center;       /* Center everything horizontally */
+    min-height: 100vh;
+}
+
+/* --- MODERN HEADER (Glassmorphism) --- */
 .site-header {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    background-color: #333;
+    background: rgba(20, 20, 20, 0.95);
+    backdrop-filter: blur(10px);
     z-index: 1000;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    text-align: center; /* Centers text and inline-block elements */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    height: 120px; /* Fixed height for consistency */
 }
 
-/* Row 1: The Brand Heading */
+/* Row 1: Brand Heading */
 .site-branding {
-    padding: 15px 0 5px 0; /* Spacing top */
+    padding-top: 15px;
     font-size: 26px;
-    font-weight: bold;
+    font-weight: 700;
     color: #fff;
     text-transform: uppercase;
     letter-spacing: 2px;
-    font-family: Arial, sans-serif;
 }
 
 .site-branding span {
-    color: #4CAF50; /* Green color for 'Conversion' */
-}
-
-/* Row 2: The Navigation Menu */
-nav {
-    display: flex;
-    justify-content: center; /* Centers the menu items horizontally */
-    background-color: #333;
-    padding-bottom: 10px;
-}
-
-/* Links inside the navbar */
-nav a, .dropbtn {
-    display: block;
-    color: white;
-    text-align: center;
-    padding: 14px 20px;
-    text-decoration: none;
-    font-size: 16px;
-    font-family: Arial, sans-serif;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-}
-
-/* Hover Effects */
-nav a:hover, .dropdown:hover .dropbtn {
-    background-color: #444;
     color: #4CAF50;
 }
 
-/* --- DROPDOWN LOGIC --- */
+/* Row 2: Navigation */
+nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+}
+
+/* Links & Buttons */
+nav a, .dropbtn {
+    display: inline-block;
+    color: #e0e0e0;
+    padding: 8px 20px;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    margin: 0 10px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+}
+
+/* Hover Effects */
+nav a:hover, .dropdown:hover .dropbtn, .active-link {
+    background-color: #4CAF50;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+}
+
+/* --- FIXING THE DROPDOWN --- */
 .dropdown {
     position: relative;
+    padding-bottom: 10px; /* Adds an invisible bridge so mouse doesn't lose focus */
+    margin-bottom: -10px; /* Counteracts the padding */
 }
 
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #f9f9f9;
-    min-width: 200px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    background-color: #2a2a2a;
+    min-width: 220px;
+    box-shadow: 0px 10px 30px rgba(0,0,0,0.5);
+    border-radius: 12px;
     z-index: 1001;
-    top: 100%; /* Pushes it exactly below the button */
-    left: 0; /* Aligns to the left edge of the button */
-    text-align: left; /* Keep dropdown text left-aligned */
+    
+    /* THE FIX: Connects directly to the button */
+    top: 100%; 
+    left: 50%;
+    transform: translateX(-50%);
+    
+    padding: 10px 0;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Show Dropdown on Hover */
+.dropdown:hover .dropdown-content {
+    display: block;
+    animation: fadeIn 0.3s ease;
 }
 
 .dropdown-content a {
-    color: black;
-    padding: 12px 16px;
+    color: #ccc;
+    padding: 12px 20px;
+    display: block;
+    text-align: left;
+    margin: 0;
+    border-radius: 0;
 }
 
 .dropdown-content a:hover {
-    background-color: #ddd;
-    color: black;
+    background-color: #333;
+    color: #4CAF50;
+    border-left: 3px solid #4CAF50;
+    box-shadow: none;
+    transform: none;
 }
 
-.dropdown:hover .dropdown-content {
-    display: block;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, 10px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
 }
 
-/* Adjust body so content doesn't hide behind the taller header */
-body {
-    padding-top: 130px; 
-}
-
-/* Adjust body to not hide behind fixed nav */
-body {
-    padding-top: 60px; 
-}
-
-/* --- AJAX SUCCESS MESSAGE STYLES --- */
-.success-message {
-    display: none; /* Hidden by default */
-    text-align: center;
-    padding: 20px;
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-    border-radius: 5px;
-    margin-top: 20px;
-}
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-}
-
+/* --- FORM CONTAINER (CENTERING FIX) --- */
 .contact-container {
     background: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.1);
-    width: 400px;
-}
-
-input, textarea {
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    
+    /* This centers the form horizontally */
     width: 100%;
-    padding: 10px;
-    margin: 8px 0 20px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box; /* Ensures padding doesn't widen the box */
+    max-width: 450px; 
+    margin: 0 auto; 
+    
+    /* Ensure it doesn't touch the very bottom */
+    margin-bottom: 50px; 
+    height: fit-content; /* Prevents it from stretching */
 }
 
-button {
+/* Form Elements */
+input, textarea, select {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0 20px 0;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    transition: border 0.3s;
+}
+
+input:focus, textarea:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+button[type="submit"] {
     width: 100%;
     background-color: #4CAF50;
     color: white;
     padding: 14px 20px;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 16px;
+    font-weight: 600;
+    transition: background 0.3s;
 }
 
 button:hover {
     background-color: #45a049;
+}
+
+/* Checkbox specific */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.checkbox-container input {
+    width: auto;
+    margin-right: 10px;
+}
+/* --- SUCCESS MESSAGE STYLING --- */
+.success-message {
+    display: none; /* Hidden by default */
+    text-align: center;
+    padding: 40px 20px;
+    animation: fadeIn 0.5s ease;
+}
+
+.success-message h2 {
+    color: #4CAF50;
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.success-message p {
+    color: #555;
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+
+/* Style the "Submit Another" button */
+.success-message button {
+    background-color: #333;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 50px; /* Pill shape */
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.success-message button:hover {
+    background-color: #555;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+/* --- SHOP / E-COMMERCE STYLES --- */
+
+/* The Grid Wrapper */
+.shop-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Responsive Grid */
+    gap: 30px;
+}
+
+/* Individual Product Card */
+.product-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* Product Image */
+.product-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    background-color: #eee;
+}
+
+/* Product Info */
+.product-info {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.product-price {
+    font-size: 16px;
+    color: #4CAF50;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* Action Buttons */
+.product-actions {
+    margin-top: auto; /* Pushes buttons to bottom */
+    display: flex;
+    gap: 10px;
+}
+
+.btn-cart {
+    flex: 1;
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.btn-cart:hover { background-color: #555; }
+
+.btn-wishlist {
+    background-color: #f0f0f0;
+    color: #333;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.btn-wishlist:hover { color: #e91e63; } /* Pink on hover */
+.btn-wishlist.active { color: #e91e63; background: #ffeef2; }
+
+/* Floating Cart Icon (Bottom Right) */
+.floating-cart {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #4CAF50;
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+.cart-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: red;
+    color: white;
+    font-size: 12px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+/* --- SHOP HEADER STYLES --- */
+.shop-header {
+    text-align: center;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 800px; /* Prevents text from getting too wide */
+    padding: 0 20px;
+}
+
+.shop-header h1 {
+    font-size: 48px; /* Big and Bold */
+    font-weight: 800;
+    color: #222;
+    margin: 0 0 15px 0;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+    position: relative;
+    display: inline-block;
+}
+
+/* Green underline effect */
+.shop-header h1::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 5px;
+    background: #4CAF50;
+    margin: 10px auto 0 auto;
+    border-radius: 5px;
+}
+
+.shop-header p {
+    font-size: 18px;
+    color: #666;
+    line-height: 1.6;
+    margin-top: 15px;
 }

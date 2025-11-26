@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop - Conversion Tracking</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="site-branding">
+            <span>Conversion</span> Tracking
+        </div>
+        <nav>
+            <div class="dropdown">
+                <button class="dropbtn">Contact Form 7 <i class="fa fa-caret-down"></i></button>
+                <div class="dropdown-content">
+                    <a href="index.html">Redirect Form</a>
+                    <a href="ajax.html">AJAX Form</a>
+                </div>
+            </div> 
+            <a href="wp-form.html">WP Form</a>
+            <a href="fluent-form.html">Fluent Form</a>
+            <a href="shop.html" class="active-link">Shop Demo</a>
+        </nav>
+    </header>
+
+    <div class="shop-header">
+        <h1>Our Products</h1>
+        <p>Explore our mock e-commerce collection designed to demonstrate tracking, conversion events, and user journey analytics.</p>
+    </div>
+
+    <div class="shop-container" id="product-grid">
+        </div>
+
+    <div class="floating-cart" onclick="alert('Cart Page coming soon!')">
+        <i class="fa fa-shopping-cart"></i>
+        <div class="cart-count" id="cart-counter">0</div>
+    </div>
+
+    <script>
+        // 1. THE "DATABASE" (12 Products)
+        const products = [
+            { id: 101, name: "SEO Audit Pro", price: 4999, category: "Service", img: "https://placehold.co/300x200?text=SEO+Audit" },
+            { id: 102, name: "Google Ads Setup", price: 2500, category: "Service", img: "https://placehold.co/300x200?text=Google+Ads" },
+            { id: 103, name: "React Course", price: 999, category: "Education", img: "https://placehold.co/300x200?text=React+Course" },
+            { id: 104, name: "Consulting Hour", price: 1500, category: "Service", img: "https://placehold.co/300x200?text=Consulting" },
+            { id: 105, name: "Email Template", price: 499, category: "Digital", img: "https://placehold.co/300x200?text=Email+Pack" },
+            { id: 106, name: "Logo Design", price: 3000, category: "Design", img: "https://placehold.co/300x200?text=Logo+Design" },
+            { id: 107, name: "Python Script", price: 750, category: "Code", img: "https://placehold.co/300x200?text=Python+Bot" },
+            { id: 108, name: "Landing Page", price: 5000, category: "Development", img: "https://placehold.co/300x200?text=Landing+Page" },
+            { id: 109, name: "Analytics Report", price: 1200, category: "Service", img: "https://placehold.co/300x200?text=Analytics" },
+            { id: 110, name: "E-book: Marketing", price: 299, category: "Education", img: "https://placehold.co/300x200?text=E-Book" },
+            { id: 111, name: "Video Edit", price: 2000, category: "Service", img: "https://placehold.co/300x200?text=Video+Edit" },
+            { id: 112, name: "Hosting Setup", price: 500, category: "Tech", img: "https://placehold.co/300x200?text=Server+Setup" }
+        ];
+
+        const grid = document.getElementById('product-grid');
+        const cartCounter = document.getElementById('cart-counter');
+        
+        // Load Cart from Memory (Local Storage)
+        let cart = JSON.parse(localStorage.getItem('my_cart')) || [];
+        updateCartCount();
+
+        // 2. RENDER THE PRODUCTS
+        products.forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            
+            card.innerHTML = `
+                <img src="${product.img}" class="product-image" alt="${product.name}">
+                <div class="product-info">
+                    <h3 class="product-title">${product.name}</h3>
+                    <div class="product-price">₹${product.price}</div>
+                    <div class="product-actions">
+                        <button class="btn-cart" onclick="addToCart(${product.id})">
+                            Add to Cart
+                        </button>
+                        <button class="btn-wishlist" onclick="addToWishlist(${product.id}, this)">
+                            <i class="fa fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        // 3. TRACKING FUNCTIONS (Buying Journey)
+
+        function addToCart(id) {
+            // A. Find the product details
+            const item = products.find(p => p.id === id);
+            
+            // B. Add to local cart array
+            cart.push(item);
+            localStorage.setItem('my_cart', JSON.stringify(cart)); // Save to browser memory
+            updateCartCount();
+
+            // C. TRACKING (The most important part for you!)
+            // We push this event to the Data Layer for GTM/GA4/Meta
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                event: 'add_to_cart',
+                ecommerce: {
+                    currency: 'INR',
+                    value: item.price,
+                    items: [{
+                        item_id: item.id,
+                        item_name: item.name,
+                        price: item.price,
+                        item_category: item.category
+                    }]
+                }
+            });
+
+            console.log("Tracked 'add_to_cart' for:", item.name);
+            alert(item.name + " added to cart!");
+        }
+
+        function addToWishlist(id, btnElement) {
+            const item = products.find(p => p.id === id);
+            
+            // Visual Change
+            btnElement.classList.toggle('active');
+
+            // TRACKING (Meta "AddToWishlist" or GA4)
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                event: 'add_to_wishlist',
+                ecommerce: {
+                    currency: 'INR',
+                    value: item.price,
+                    items: [{
+                        item_id: item.id,
+                        item_name: item.name,
+                        price: item.price
+                    }]
+                }
+            });
+            
+            console.log("Tracked 'add_to_wishlist' for:", item.name);
+        }
+
+        function updateCartCount() {
+            cartCounter.innerText = cart.length;
+        }
+
+        // 4. Track "View Item List" when page loads
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+            event: 'view_item_list',
+            ecommerce: {
+                items: products.map(p => ({
+                    item_id: p.id,
+                    item_name: p.name,
+                    price: p.price
+                }))
+            }
+        });
+
+    </script>
+
+</body>
+</html>
