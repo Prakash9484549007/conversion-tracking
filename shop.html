@@ -285,8 +285,19 @@
         }
 
         // 6. NAVIGATION
-        function openNav(id) { document.getElementById(id).style.width = "350px"; }
-        function closeNav(id) { document.getElementById(id).style.width = "0"; }
+        // 6. NAVIGATION (Responsive)
+        function openNav(id) { 
+            // If screen is small (mobile), take 100% width. Otherwise 350px.
+            if (window.innerWidth <= 600) {
+                document.getElementById(id).style.width = "100%";
+            } else {
+                document.getElementById(id).style.width = "350px";
+            }
+        }
+        
+        function closeNav(id) { 
+            document.getElementById(id).style.width = "0"; 
+        }
         
         function goToCheckout() {
             const total = document.getElementById('cart-total').innerText;

@@ -511,3 +511,100 @@ button:hover {
 .logout-btn:hover {
     background-color: #cc0000;
 }
+/* =========================================
+   MOBILE RESPONSIVENESS (Max-Width: 768px)
+   ========================================= */
+@media screen and (max-width: 768px) {
+
+    /* 1. GLOBAL LAYOUT ADJUSTMENTS */
+    body {
+        padding-top: 170px; /* More space for the taller, wrapped header */
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    /* 2. HEADER & NAVIGATION */
+    .site-header {
+        height: auto; /* Let it grow tall to fit wrapped links */
+        padding-bottom: 15px;
+    }
+
+    .site-branding {
+        font-size: 22px; /* Smaller Logo */
+        padding-top: 10px;
+    }
+
+    nav {
+        flex-wrap: wrap; /* Allow links to stack on multiple lines */
+        gap: 10px;
+    }
+
+    nav a, .dropbtn {
+        font-size: 13px; /* Smaller text */
+        padding: 8px 12px;
+        margin: 0 2px; /* Less space between buttons */
+    }
+
+    /* Hide the Auth Profile text on mobile to save space (keep icon) */
+    #user-name {
+        display: none;
+    }
+
+    /* 3. FORMS (Contact, WP, Fluent) */
+    .contact-container {
+        width: 100%;
+        max-width: 100%;
+        margin-top: 10px;
+        padding: 25px 15px; /* Less internal padding */
+    }
+
+    /* 4. SHOP PAGE */
+    .shop-header h1 {
+        font-size: 32px; /* Smaller Title */
+    }
+
+    .shop-container {
+        /* Force 1 column on mobile, or 2 small ones */
+        grid-template-columns: 1fr; 
+        gap: 20px;
+        padding: 0;
+    }
+
+    /* 5. SIDEBARS (Cart/Wishlist) */
+    .sidebar {
+        z-index: 9999; /* Ensure it covers everything */
+    }
+    
+    /* 6. FLUENT FORM STEPPER */
+    .step-indicator {
+        width: 25px;
+        height: 25px;
+        font-size: 12px;
+    }
+}
+
+/* =========================================
+   SMALL MOBILE FIXES (Max-Width: 480px)
+   ========================================= */
+@media screen and (max-width: 480px) {
+    /* Stack the nav completely vertical on very small phones */
+    nav {
+        flex-direction: column;
+    }
+    
+    nav a, .dropbtn {
+        width: 80%; /* Buttons take full width */
+    }
+
+    body {
+        padding-top: 280px; /* Huge top padding because nav is vertical now */
+    }
+    
+    .floating-cart {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+        bottom: 20px;
+        right: 20px;
+    }
+}
