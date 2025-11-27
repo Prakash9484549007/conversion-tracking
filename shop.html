@@ -29,139 +29,260 @@
         </nav>
     </header>
 
-    <div class="shop-header">
-        <h1>Our Products</h1>
-        <p>Explore our mock e-commerce collection designed to demonstrate tracking, conversion events, and user journey analytics.</p>
+    <div style="position: fixed; bottom: 30px; right: 30px; display: flex; gap: 10px; z-index: 100;">
+        <div onclick="openNav('wishlist-sidebar')" class="floating-cart" style="background: #e91e63; position: relative;">
+            <i class="fa fa-heart"></i>
+        </div>
+        <div onclick="openNav('cart-sidebar')" class="floating-cart" style="position: relative;">
+            <i class="fa fa-shopping-cart"></i>
+            <div class="cart-count" id="cart-counter">0</div>
+        </div>
     </div>
 
-    <div class="shop-container" id="product-grid">
-        </div>
+    <div class="shop-header">
+        <h1>Our Products</h1>
+        <p>Items added here are tracked in your local MongoDB Database.</p>
+    </div>
 
-    <div class="floating-cart" onclick="alert('Cart Page coming soon!')">
-        <i class="fa fa-shopping-cart"></i>
-        <div class="cart-count" id="cart-counter">0</div>
+    <div class="shop-container" id="product-grid"></div>
+
+    <div id="cart-sidebar" class="sidebar">
+        
+        <div class="sidebar-header">
+            <h2>Your Cart</h2> <button class="close-btn" onclick="closeNav('cart-sidebar')">&times;</button> </div>
+
+        <div class="sidebar-content" id="cart-items-container">
+            </div>
+
+        <div class="sidebar-footer">
+            <h3 style="margin: 0; color: #333;">Total: ₹<span id="cart-total">0</span></h3>
+            <button id="checkout-btn" class="checkout-btn" onclick="goToCheckout()">Checkout Now</button>
+        </div>
+    </div>
+
+    <div id="wishlist-sidebar" class="sidebar">
+        
+        <div class="sidebar-header">
+            <h2>Your Wishlist</h2> <button class="close-btn" onclick="closeNav('wishlist-sidebar')">&times;</button> </div>
+
+        <div class="sidebar-content" id="wishlist-items-container">
+            </div>
+        
     </div>
 
     <script>
-        // 1. THE "DATABASE" (12 Products)
-        const products = [
-            { id: 101, name: "SEO Audit Pro", price: 4999, category: "Service", img: "https://placehold.co/300x200?text=SEO+Audit" },
-            { id: 102, name: "Google Ads Setup", price: 2500, category: "Service", img: "https://placehold.co/300x200?text=Google+Ads" },
-            { id: 103, name: "React Course", price: 999, category: "Education", img: "https://placehold.co/300x200?text=React+Course" },
-            { id: 104, name: "Consulting Hour", price: 1500, category: "Service", img: "https://placehold.co/300x200?text=Consulting" },
-            { id: 105, name: "Email Template", price: 499, category: "Digital", img: "https://placehold.co/300x200?text=Email+Pack" },
-            { id: 106, name: "Logo Design", price: 3000, category: "Design", img: "https://placehold.co/300x200?text=Logo+Design" },
-            { id: 107, name: "Python Script", price: 750, category: "Code", img: "https://placehold.co/300x200?text=Python+Bot" },
-            { id: 108, name: "Landing Page", price: 5000, category: "Development", img: "https://placehold.co/300x200?text=Landing+Page" },
-            { id: 109, name: "Analytics Report", price: 1200, category: "Service", img: "https://placehold.co/300x200?text=Analytics" },
-            { id: 110, name: "E-book: Marketing", price: 299, category: "Education", img: "https://placehold.co/300x200?text=E-Book" },
-            { id: 111, name: "Video Edit", price: 2000, category: "Service", img: "https://placehold.co/300x200?text=Video+Edit" },
-            { id: 112, name: "Hosting Setup", price: 500, category: "Tech", img: "https://placehold.co/300x200?text=Server+Setup" }
-        ];
+        // 1. IDENTIFY THE USER (Create a random Guest ID if not exists)
+        let userId = localStorage.getItem('guest_user_id');
+        if (!userId) {
+            userId = 'guest_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('guest_user_id', userId);
+        }
+        console.log("Current User:", userId);
 
-        const grid = document.getElementById('product-grid');
-        const cartCounter = document.getElementById('cart-counter');
-        
-        // Load Cart from Memory (Local Storage)
-        let cart = JSON.parse(localStorage.getItem('my_cart')) || [];
-        updateCartCount();
+        let products = [];
+        let cart = [];
+        let wishlist = [];
 
-        // 2. RENDER THE PRODUCTS
-        products.forEach(product => {
-            const card = document.createElement('div');
-            card.className = 'product-card';
+        // 2. LOAD DATA
+        async function loadData() {
+            try {
+                // 1. Fetch Products
+                const resProd = await fetch('http://localhost:5000/api/products');
+                products = await resProd.json();
+                renderProducts(products);
+
+                // 2. Fetch Old Cart from DB
+                const resCart = await fetch(`http://localhost:5000/api/cart/${userId}`);
+                cart = await resCart.json();
+                updateCartUI();
+
+                // 3. INITIALIZE WISHLIST UI (This fixes the missing message)
+                // Even if we haven't fetched data, this forces the "Empty" message to show
+                updateWishlistUI();
+
+            } catch (err) {
+                console.error("Error loading data. Is the backend server running?", err);
+                document.getElementById('product-grid').innerHTML = "<p>Error connecting to database. Please run 'node server.js'.</p>";
+            }
+        }
+
+        function renderProducts(list) {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = "";
+            list.forEach(p => {
+                grid.innerHTML += `
+                    <div class="product-card">
+                        <img src="${p.img}" class="product-image">
+                        <div class="product-info">
+                            <h3 class="product-title">${p.name}</h3>
+                            <div class="product-price">₹${p.price}</div>
+                            <div class="product-actions">
+                                <button class="btn-cart" onclick="addToCart(${p.id})">Add to Cart</button>
+                                <button class="btn-wishlist" onclick="addToWishlist(${p.id})">
+                                    <i class="fa fa-heart"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>`;
+            });
             
-            card.innerHTML = `
-                <img src="${product.img}" class="product-image" alt="${product.name}">
-                <div class="product-info">
-                    <h3 class="product-title">${product.name}</h3>
-                    <div class="product-price">₹${product.price}</div>
-                    <div class="product-actions">
-                        <button class="btn-cart" onclick="addToCart(${product.id})">
-                            Add to Cart
-                        </button>
-                        <button class="btn-wishlist" onclick="addToWishlist(${product.id}, this)">
-                            <i class="fa fa-heart"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-            grid.appendChild(card);
-        });
+            // Track View Item List
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                event: 'view_item_list',
+                ecommerce: { items: list.map(p => ({ item_id: p.id, item_name: p.name, price: p.price })) }
+            });
+        }
 
-        // 3. TRACKING FUNCTIONS (Buying Journey)
-
+        // 3. CART LOGIC (With DB Sync)
         function addToCart(id) {
-            // A. Find the product details
             const item = products.find(p => p.id === id);
-            
-            // B. Add to local cart array
             cart.push(item);
-            localStorage.setItem('my_cart', JSON.stringify(cart)); // Save to browser memory
-            updateCartCount();
-
-            // C. TRACKING (The most important part for you!)
-            // We push this event to the Data Layer for GTM/GA4/Meta
+            updateCartUI();
+            saveToDB('/api/cart', cart); // Sync to DB
+            openNav('cart-sidebar'); // Auto open cart
+            
+            // Tracking
             window.dataLayer = window.dataLayer || [];
             window.dataLayer.push({
                 event: 'add_to_cart',
-                ecommerce: {
-                    currency: 'INR',
-                    value: item.price,
-                    items: [{
-                        item_id: item.id,
-                        item_name: item.name,
-                        price: item.price,
-                        item_category: item.category
-                    }]
-                }
+                ecommerce: { currency: 'INR', value: item.price, items: [{ item_id: item.id, item_name: item.name, price: item.price }] }
             });
-
-            console.log("Tracked 'add_to_cart' for:", item.name);
-            alert(item.name + " added to cart!");
         }
 
-        function addToWishlist(id, btnElement) {
-            const item = products.find(p => p.id === id);
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+            saveToDB('/api/cart', cart);
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cart-items-container');
+            const counter = document.getElementById('cart-counter');
+            const totalSpan = document.getElementById('cart-total');
+            const checkoutBtn = document.getElementById('checkout-btn'); // Select the button
+
+            // 1. Update Counter
+            counter.innerText = cart.length;
             
-            // Visual Change
-            btnElement.classList.toggle('active');
+            // 2. Render Items
+            let total = 0;
+            container.innerHTML = "";
 
-            // TRACKING (Meta "AddToWishlist" or GA4)
-            window.dataLayer = window.dataLayer || [];
-            window.dataLayer.push({
-                event: 'add_to_wishlist',
-                ecommerce: {
-                    currency: 'INR',
-                    value: item.price,
-                    items: [{
-                        item_id: item.id,
-                        item_name: item.name,
-                        price: item.price
-                    }]
-                }
-            });
-            
-            console.log("Tracked 'add_to_wishlist' for:", item.name);
-        }
+            if (cart.length === 0) {
+                container.innerHTML = "<p style='text-align:center; color:#999; margin-top:20px;'>Your cart is empty.</p>";
+                
+                // DISABLE BUTTON
+                checkoutBtn.disabled = true;
+                checkoutBtn.style.backgroundColor = "#ccc"; // Turn Grey
+                checkoutBtn.style.cursor = "not-allowed";
+                checkoutBtn.innerText = "Cart is Empty";
+            } else {
+                // ENABLE BUTTON
+                checkoutBtn.disabled = false;
+                checkoutBtn.style.backgroundColor = "#4CAF50"; // Turn Green
+                checkoutBtn.style.cursor = "pointer";
+                checkoutBtn.innerText = "Checkout Now";
 
-        function updateCartCount() {
-            cartCounter.innerText = cart.length;
-        }
-
-        // 4. Track "View Item List" when page loads
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({
-            event: 'view_item_list',
-            ecommerce: {
-                items: products.map(p => ({
-                    item_id: p.id,
-                    item_name: p.name,
-                    price: p.price
-                }))
+                // Loop through items
+                cart.forEach((item, index) => {
+                    total += item.price;
+                    container.innerHTML += `
+                        <div class="cart-item">
+                            <div>
+                                <strong>${item.name}</strong><br>₹${item.price}
+                            </div>
+                            <span class="item-remove" onclick="removeFromCart(${index})">Remove</span>
+                        </div>`;
+                });
             }
-        });
 
+            // 3. Update Total Text
+            totalSpan.innerText = total;
+        }
+
+        // 4. WISHLIST LOGIC (With DB Sync)
+        function addToWishlist(id) {
+            const item = products.find(p => p.id === id);
+            // Check if already in wishlist
+            if(!wishlist.some(w => w.id === id)) {
+                wishlist.push(item);
+                updateWishlistUI();
+                saveToDB('/api/wishlist', wishlist);
+                alert("Added to Wishlist");
+                
+                // Tracking
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({
+                    event: 'add_to_wishlist',
+                    ecommerce: { currency: 'INR', value: item.price, items: [{ item_id: item.id, item_name: item.name, price: item.price }] }
+                });
+            }
+        }
+
+        function removeFromWishlist(index) {
+            wishlist.splice(index, 1);
+            updateWishlistUI();
+            saveToDB('/api/wishlist', wishlist);
+        }
+
+        function updateWishlistUI() {
+            const container = document.getElementById('wishlist-items-container');
+            container.innerHTML = ""; // Clear current list
+
+            // CHECK IF EMPTY
+            if (wishlist.length === 0) {
+                container.innerHTML = "<p style='text-align:center; color:#999; margin-top:20px;'>Your wishlist is empty.</p>";
+            } else {
+                // RENDER ITEMS
+                wishlist.forEach((item, index) => {
+                    container.innerHTML += `
+                        <div class="cart-item">
+                            <div>
+                                <strong>${item.name}</strong><br>
+                                <span style="font-size:12px; color:#666;">₹${item.price}</span>
+                            </div>
+                            <div>
+                                <button onclick="moveWishlistToCart(${index}, ${item.id})" style="background:none; border:none; color:#4CAF50; cursor:pointer; margin-right:10px; font-size:18px;" title="Move to Cart">
+                                    <i class="fa fa-shopping-cart"></i>
+                                </button>
+                                <span class="item-remove" onclick="removeFromWishlist(${index})">Remove</span>
+                            </div>
+                        </div>`;
+                });
+            }
+        }
+
+        function moveWishlistToCart(index, id) {
+            addToCart(id);       // Add to Cart
+            removeFromWishlist(index); // Remove from Wishlist
+        }
+
+        // 5. HELPER: SAVE TO DB
+        async function saveToDB(endpoint, items) {
+            try {
+                await fetch(`http://localhost:5000${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: userId, items: items })
+                });
+                console.log("Synced to DB:", endpoint);
+            } catch(e) {
+                console.error("DB Sync Failed", e);
+            }
+        }
+
+        // 6. NAVIGATION
+        function openNav(id) { document.getElementById(id).style.width = "350px"; }
+        function closeNav(id) { document.getElementById(id).style.width = "0"; }
+        
+        function goToCheckout() {
+            const total = document.getElementById('cart-total').innerText;
+            window.location.href = `payment.html?total=${total}`;
+        }
+
+        // Init
+        loadData();
     </script>
 
 </body>
