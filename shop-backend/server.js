@@ -8,7 +8,8 @@ app.use(express.json());
 app.use(cors());
 
 // CONNECT TO LOCAL MONGODB
-const mongoURI = "mongodb://127.0.0.1:27017/shopDB";
+// Use the Cloud URL if available, otherwise use Local
+const mongoURI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/shopDB";
 mongoose.connect(mongoURI)
     .then(() => console.log("MongoDB Connected"))
     .catch(err => console.log(err));

@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
@@ -26,6 +27,16 @@
             <a href="wp-form.html">WP Form</a>
             <a href="fluent-form.html">Fluent Form</a>
             <a href="shop.html" class="active-link">Shop Demo</a>
+            
+            <div style="margin-left: 20px; display: flex; align-items: center;">
+                <div id="google-btn"></div>
+
+                <div id="user-profile" style="display:none; align-items:center; gap:10px;">
+                    <img id="user-pic" src="" style="width:32px; height:32px; border-radius:50%; border: 2px solid #4CAF50;">
+                    <span id="user-name" style="color:white; font-size:14px; font-weight:600;"></span>
+                    <button onclick="logout()" style="background:#ff4444; border:none; color:white; cursor:pointer; font-size:12px; padding:5px 10px; border-radius:4px; margin-left:5px;">Logout</button>
+                </div>
+            </div>
         </nav>
     </header>
 
@@ -87,12 +98,12 @@
         async function loadData() {
             try {
                 // 1. Fetch Products
-                const resProd = await fetch('http://localhost:5000/api/products');
+                const resProd = await fetch('https://shop-backend-0b4p.onrender.com/api/products');
                 products = await resProd.json();
                 renderProducts(products);
 
                 // 2. Fetch Old Cart from DB
-                const resCart = await fetch(`http://localhost:5000/api/cart/${userId}`);
+                const resCart = await fetch(`https://shop-backend-0b4p.onrender.com/api/cart/${userId}`);
                 cart = await resCart.json();
                 updateCartUI();
 
@@ -261,7 +272,7 @@
         // 5. HELPER: SAVE TO DB
         async function saveToDB(endpoint, items) {
             try {
-                await fetch(`http://localhost:5000${endpoint}`, {
+                    await fetch(`https://shop-backend-0b4p.onrender.com${endpoint}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userId: userId, items: items })
@@ -283,6 +294,100 @@
 
         // Init
         loadData();
+        // ==========================================
+        // GOOGLE SIGN-IN LOGIC
+        // ==========================================
+
+        function handleCredentialResponse(response) {
+            // 1. Decode the Google Token
+            const responsePayload = decodeJwtResponse(response.credential);
+
+            console.log("Logged in as: " + responsePayload.name);
+
+            // 2. Send to Backend to Save User in MongoDB
+            // NOTE: If you are on Vercel, this fetch works ONLY if your backend is also deployed 
+            // OR if you are running the backend locally on port 5000.
+            fetch('https://shop-backend-0b4p.onrender.com/api/auth/google', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    token: response.credential,
+                    userData: responsePayload
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    // Save Real User ID to Memory
+                    localStorage.setItem('real_user_id', data.user.googleId);
+                    
+                    // Update UI to show Profile
+                    showLoggedInUI(data.user.name, data.user.picture);
+                }
+            })
+            .catch(err => console.error("Login Error:", err));
+        }
+
+        // Helper: Show the Profile UI
+        function showLoggedInUI(name, pic) {
+            document.getElementById('google-btn').style.display = 'none';
+            const profile = document.getElementById('user-profile');
+            profile.style.display = 'flex';
+            document.getElementById('user-name').innerText = name;
+            document.getElementById('user-pic').src = pic;
+        }
+
+        // Helper: Logout
+        function logout() {
+            localStorage.removeItem('real_user_id');
+            // Optional: Google logout logic here if needed
+            location.reload();
+        }
+
+        // Helper: Decode Token (Google's standard decoder)
+        function decodeJwtResponse(token) {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        // INITIALIZE GOOGLE BUTTON
+        // INITIALIZE
+        window.onload = function () {
+            loadData(); 
+
+            // SMART GREETING LOGIC
+            const previousUser = localStorage.getItem('real_user_id');
+            const greetingBox = document.getElementById('google-btn');
+
+            // If we remember them, we can show a specific message above the button
+            if (previousUser) {
+                // Optional: You could add a text saying "Welcome back! Please sign in."
+                console.log("Welcome back, returning user.");
+            } else {
+                console.log("New visitor detected.");
+            }
+
+            // RENDER GOOGLE BUTTON
+            // This SINGLE button handles both Sign Up and Sign In automatically.
+            google.accounts.id.initialize({
+                client_id: "158272157316-irpbe2f77n313ntai8oqre1uv7klngs5.apps.googleusercontent.com", // Make sure this is still here!
+                callback: handleCredentialResponse
+            });
+            
+            google.accounts.id.renderButton(
+                document.getElementById("google-btn"),
+                { 
+                    theme: "outline", 
+                    size: "large", 
+                    shape: "pill",
+                    text: previousUser ? "signin" : "signup_with" // Changes text based on history!
+                } 
+            );
+        }
     </script>
 
 </body>
