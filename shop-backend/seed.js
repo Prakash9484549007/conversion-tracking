@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 // NEW CLOUD CONNECTION STRING
+// const mongoURI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/shopDB";
 const mongoURI = "mongodb+srv://lalchandanip595_db_user:exEwIO9gNb2EhgLm@conversiontrackingclust.ywngtsn.mongodb.net/shopDB?appName=conversiontrackingcluster";
 
 mongoose.connect(mongoURI).then(() => console.log("Connected"));
