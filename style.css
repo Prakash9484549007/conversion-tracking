@@ -512,136 +512,134 @@ button:hover {
     background-color: #cc0000;
 }
 /* =========================================
-   MOBILE RESPONSIVENESS (Max-Width: 768px)
+   MOBILE OPTIMIZATION (Max-Width: 768px)
    ========================================= */
 @media screen and (max-width: 768px) {
 
-    /* 1. GLOBAL LAYOUT ADJUSTMENTS */
+    /* 1. RESET LAYOUT & SCROLLING HEADER */
     body {
-        padding-top: 170px; /* More space for the taller, wrapped header */
-        padding-left: 10px;
-        padding-right: 10px;
+        padding-top: 0 !important; /* Remove top gap */
+        display: block; /* Normal block layout, not flex */
     }
 
-    /* 2. HEADER & NAVIGATION */
     .site-header {
-        height: auto; /* Let it grow tall to fit wrapped links */
-        padding-bottom: 15px;
+        position: relative !important; /* Let header scroll away */
+        height: auto !important; /* Let it grow naturally */
+        padding: 15px 0;
     }
 
-    .site-branding {
-        font-size: 22px; /* Smaller Logo */
+    /* 2. COMPACT NAVIGATION */
+    nav {
+        flex-direction: column;
+        gap: 8px; /* Smaller gap */
+    }
+
+    nav a, .dropbtn {
+        width: 90%; /* Buttons take almost full width */
+        padding: 10px;
+        background-color: rgba(255,255,255,0.05); /* Slight background to see buttons */
+        margin: 2px 0;
+    }
+
+    /* 3. FIX THE USER PROFILE (Horizontal Row) */
+    .auth-container {
+        width: 90%;
+        margin-top: 10px;
+        border-top: 1px solid rgba(255,255,255,0.2);
         padding-top: 10px;
     }
 
-    nav {
-        flex-wrap: wrap; /* Allow links to stack on multiple lines */
-        gap: 10px;
-    }
-
-    nav a, .dropbtn {
-        font-size: 13px; /* Smaller text */
-        padding: 8px 12px;
-        margin: 0 2px; /* Less space between buttons */
-    }
-
-    /* Hide the Auth Profile text on mobile to save space (keep icon) */
-    #user-name {
-        display: none;
-    }
-
-    /* 3. FORMS (Contact, WP, Fluent) */
-    .contact-container {
-        width: 100%;
-        max-width: 100%;
-        margin-top: 10px;
-        padding: 25px 15px; /* Less internal padding */
-    }
-
-    /* 4. SHOP PAGE */
-    .shop-header h1 {
-        font-size: 32px; /* Smaller Title */
-    }
-
-    .shop-container {
-        /* Force 1 column on mobile, or 2 small ones */
-        grid-template-columns: 1fr; 
-        gap: 20px;
-        padding: 0;
-    }
-
-    /* 5. SIDEBARS (Cart/Wishlist) */
-    .sidebar {
-        z-index: 9999; /* Ensure it covers everything */
-    }
-    
-    /* 6. FLUENT FORM STEPPER */
-    .step-indicator {
-        width: 25px;
-        height: 25px;
-        font-size: 12px;
-    }
-}
-
-/* =========================================
-   SMALL MOBILE FIXES (Max-Width: 480px)
-   ========================================= */
-@media screen and (max-width: 480px) {
-    /* Stack the nav completely vertical on very small phones */
-    nav {
-        flex-direction: column;
-    }
-    
-    nav a, .dropbtn {
-        width: 80%; /* Buttons take full width */
-    }
-
-    body {
-        padding-top: 280px; /* Huge top padding because nav is vertical now */
-    }
-    
-    .floating-cart {
-        width: 50px;
-        height: 50px;
-        font-size: 20px;
-        bottom: 20px;
-        right: 20px;
-    }
-}
-/* --- MOBILE MENU FIXES (Max Width 768px) --- */
-@media screen and (max-width: 768px) {
-    
-    /* 1. Stack the Navbar items vertically */
-    nav {
-        flex-direction: column; /* Stack links top-to-bottom */
-        align-items: center;    /* Center them */
-        gap: 15px;              /* Add space between items */
-    }
-
-    /* 2. Fix the Auth Container (Login Button) */
-    .auth-container {
-        margin-left: 0 !important; /* Remove the left margin forcing it off-screen */
-        margin-top: 10px;          /* Add space above it */
-        width: 100%;               /* Take full width */
-        display: flex;
-        justify-content: center;   /* Center the Google Button */
-    }
-
-    /* 3. Make Buttons look better on mobile */
-    nav a, .dropbtn {
-        width: 80%; /* Make links wide for easy tapping */
-        margin: 5px 0;
-    }
-
-    /* 4. Fix Profile View on Mobile */
     #user-profile {
-        flex-direction: column; /* Stack Pic, Name, Logout */
-        gap: 5px;
+        display: flex !important;
+        flex-direction: row !important; /* Force side-by-side */
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background: none;
     }
-    
+
+    #user-pic {
+        width: 30px; /* Smaller image */
+        height: 30px;
+    }
+
     #user-name {
-        display: block !important; /* Show name again if you hid it before */
-        color: #333; /* Dark color if background is white on mobile */
+        font-size: 13px !important; /* Smaller text */
+        white-space: nowrap; /* Prevent text wrapping */
+        display: block !important;
+    }
+
+    .logout-btn {
+        padding: 4px 10px; /* Smaller button */
+        font-size: 11px;
+    }
+
+    /* 4. CONTENT & FORMS */
+    .contact-container {
+        width: 90%;
+        margin: 20px auto; /* Center it */
+        padding: 20px;
+    }
+
+    /* 5. SHOP PAGE FIXES */
+    .shop-header h1 { font-size: 28px; }
+    
+    .shop-container {
+        grid-template-columns: 1fr; /* 1 Column Grid */
+        padding: 0 15px;
+    }
+
+    /* 6. SIDEBAR (Full Width on Mobile) */
+    .sidebar { z-index: 9999; }
+}
+/* --- PROFILE & DELETE BUTTON STYLES --- */
+
+.auth-container {
+    margin-left: 20px; /* moved from HTML to CSS */
+    display: flex;
+    align-items: center;
+}
+
+#user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+}
+
+#user-name {
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    color: #ffaaaa; /* Soft Red */
+    font-size: 10px;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+
+.delete-btn:hover {
+    color: #ff4444; /* Bright Red on hover */
+}
+
+/* MOBILE FIX (Ensure this stays centered on phones) */
+@media screen and (max-width: 768px) {
+    .auth-container {
+        margin-left: 0; /* Reset margin for mobile */
+    }
+    .profile-info {
+        align-items: center; /* Center text on mobile */
     }
 }
-.auth-container { margin-left: 20px; }

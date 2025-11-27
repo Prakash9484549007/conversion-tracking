@@ -108,18 +108,29 @@ app.post('/api/auth/google', async (req, res) => {
     }
 });
 
-// --- NEW: DELETE ACCOUNT ROUTE ---
-app.delete('/api/auth/user/:googleId', async (req, res) => {
+// --- DELETE ACCOUNT ROUTE ---
+app.delete('/api/auth/delete/:googleId', async (req, res) => {
+    const googleId = req.params.googleId;
+
     try {
-        const deletedUser = await User.findOneAndDelete({ googleId: req.params.googleId });
+        // 1. Delete User Profile
+        const deletedUser = await User.findOneAndDelete({ googleId: googleId });
+        
+        // 2. Delete their Cart
+        await Cart.findOneAndDelete({ userId: googleId });
+        
+        // 3. Delete their Wishlist
+        await Wishlist.findOneAndDelete({ userId: googleId });
+
         if (deletedUser) {
-            console.log("User Deleted:", deletedUser.name);
-            res.json({ success: true, message: "Account deleted permanently." });
+            res.json({ success: true, message: "User deleted" });
+            console.log("Deleted user:", googleId);
         } else {
-            res.status(404).json({ success: false, message: "User not found." });
+            res.status(404).json({ success: false, message: "User not found" });
         }
+
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 

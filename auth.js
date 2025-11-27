@@ -86,21 +86,33 @@ function logout() {
 
 // 5. DELETE ACCOUNT
 function deleteAccount() {
-    const confirmDelete = confirm("⚠️ ARE YOU SURE? \n\nThis will permanently delete your account, order history, and wishlist. This action cannot be undone.");
+    const userId = localStorage.getItem('real_user_id');
     
-    if (confirmDelete) {
-        const userId = localStorage.getItem('real_user_id');
-        
-        fetch(`${BACKEND_URL}/api/auth/user/${userId}`, {
-            method: 'DELETE'
-        })
-        .then(res => res.json())
-        .then(data => {
-            alert(data.message);
-            logout(); // Auto logout after delete
-        })
-        .catch(err => alert("Error deleting account: " + err.message));
+    // 1. Confirm First
+    if(!confirm("⚠️ ARE YOU SURE? \n\nThis will permanently delete your account, order history, and wishlist. This action cannot be undone.")) {
+        return;
     }
+
+    // 2. Define URL (Safe method)
+    const backendURL = 'https://shop-backend-0b4p.onrender.com'; 
+
+    // 3. Send Request
+    fetch(`${backendURL}/api/auth/delete/${userId}`, {
+        method: 'DELETE'
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            alert("Account Deleted Successfully.");
+            logout(); // Only logout if successful
+        } else {
+            alert("Error: " + data.message);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Server Error. Please try again.");
+    });
 }
 
 // Helper: Decode Token
