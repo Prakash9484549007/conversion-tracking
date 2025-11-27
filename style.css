@@ -608,3 +608,40 @@ button:hover {
         right: 20px;
     }
 }
+/* --- MOBILE MENU FIXES (Max Width 768px) --- */
+@media screen and (max-width: 768px) {
+    
+    /* 1. Stack the Navbar items vertically */
+    nav {
+        flex-direction: column; /* Stack links top-to-bottom */
+        align-items: center;    /* Center them */
+        gap: 15px;              /* Add space between items */
+    }
+
+    /* 2. Fix the Auth Container (Login Button) */
+    .auth-container {
+        margin-left: 0 !important; /* Remove the left margin forcing it off-screen */
+        margin-top: 10px;          /* Add space above it */
+        width: 100%;               /* Take full width */
+        display: flex;
+        justify-content: center;   /* Center the Google Button */
+    }
+
+    /* 3. Make Buttons look better on mobile */
+    nav a, .dropbtn {
+        width: 80%; /* Make links wide for easy tapping */
+        margin: 5px 0;
+    }
+
+    /* 4. Fix Profile View on Mobile */
+    #user-profile {
+        flex-direction: column; /* Stack Pic, Name, Logout */
+        gap: 5px;
+    }
+    
+    #user-name {
+        display: block !important; /* Show name again if you hid it before */
+        color: #333; /* Dark color if background is white on mobile */
+    }
+}
+.auth-container { margin-left: 20px; }
