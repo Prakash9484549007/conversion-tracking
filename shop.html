@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="auth.js"></script>
 </head>
 <body>
 
@@ -26,17 +27,17 @@
             </div> 
             <a href="wp-form.html">WP Form</a>
             <a href="fluent-form.html">Fluent Form</a>
-            <a href="shop.html" class="active-link">Shop Demo</a>
+            <a href="shop.html" class="active-link">E-Commerce Store</a>
             
-            <div style="margin-left: 20px; display: flex; align-items: center;">
-                <div id="google-btn"></div>
+            <div class="auth-container" style="margin-left: 20px;">
+    <div id="google-btn"></div>
 
-                <div id="user-profile" style="display:none; align-items:center; gap:10px;">
-                    <img id="user-pic" src="" style="width:32px; height:32px; border-radius:50%; border: 2px solid #4CAF50;">
-                    <span id="user-name" style="color:white; font-size:14px; font-weight:600;"></span>
-                    <button onclick="logout()" style="background:#ff4444; border:none; color:white; cursor:pointer; font-size:12px; padding:5px 10px; border-radius:4px; margin-left:5px;">Logout</button>
-                </div>
-            </div>
+    <div id="user-profile" style="display:none; align-items:center; gap:10px;">
+        <img id="user-pic" src="" alt="Profile">
+        <span id="user-name" style="color: white; font-weight: 600; font-size: 14px;"></span>
+        <button onclick="logout()" class="logout-btn">Logout</button>
+    </div>
+</div>
         </nav>
     </header>
 

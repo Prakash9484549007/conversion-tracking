@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AJAX Contact Form</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="auth.js"></script>
 </head>
 <body>
 
@@ -28,6 +30,15 @@
             <a href="wp-form.html">WP Form</a>
             <a href="fluent-form.html">Fluent Form</a>
             <a href="shop.html">E-Commerce Store</a>
+            <div class="auth-container" style="margin-left: 20px;">
+    <div id="google-btn"></div>
+
+    <div id="user-profile" style="display:none; align-items:center; gap:10px;">
+        <img id="user-pic" src="" alt="Profile">
+        <span id="user-name" style="color: white; font-weight: 600; font-size: 14px;"></span>
+        <button onclick="logout()" class="logout-btn">Logout</button>
+    </div>
+</div>
 
         </nav>
     </header>
