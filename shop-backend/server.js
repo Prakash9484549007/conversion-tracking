@@ -108,5 +108,20 @@ app.post('/api/auth/google', async (req, res) => {
     }
 });
 
+// --- NEW: DELETE ACCOUNT ROUTE ---
+app.delete('/api/auth/user/:googleId', async (req, res) => {
+    try {
+        const deletedUser = await User.findOneAndDelete({ googleId: req.params.googleId });
+        if (deletedUser) {
+            console.log("User Deleted:", deletedUser.name);
+            res.json({ success: true, message: "Account deleted permanently." });
+        } else {
+            res.status(404).json({ success: false, message: "User not found." });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // START SERVER
 app.listen(5000, () => console.log("Server running on port 5000"));

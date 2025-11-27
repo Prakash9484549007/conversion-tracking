@@ -36,7 +36,10 @@
 
     <div id="user-profile" style="display:none; align-items:center; gap:10px;">
         <img id="user-pic" src="" alt="Profile">
-        <span id="user-name" style="color: white; font-weight: 600; font-size: 14px;"></span>
+        <div style="display:flex; flex-direction:column; align-items:flex-start;">
+            <span id="user-name" style="color: white; font-weight: 600; font-size: 14px; line-height: 1;"></span>
+            <button onclick="deleteAccount()" style="background:none; border:none; color:#ff4444; font-size:10px; cursor:pointer; padding:0; text-decoration:underline;">Delete Account</button>
+        </div>
         <button onclick="logout()" class="logout-btn">Logout</button>
     </div>
 </div>

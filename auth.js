@@ -1,13 +1,30 @@
-// auth.js - Handles Google Login for all pages
+const BACKEND_URL = 'https://shop-backend-0b4p.onrender.com'; // Your Render URL
 
+// 1. AUTH GUARD (Runs immediately)
+(function checkAccess() {
+    const path = window.location.pathname;
+    const user = localStorage.getItem('real_user_id');
+    
+    // Is the user on the Login Page?
+    const isLoginPage = path.includes('login.html');
+
+    if (isLoginPage) {
+        // If logged in, kick them to Home
+        if (user) window.location.href = 'index.html';
+    } else {
+        // If NOT logged in, kick them to Login
+        if (!user) {
+            window.location.href = 'login.html';
+        }
+    }
+})();
+
+// 2. GOOGLE LOGIN RESPONSE
 function handleCredentialResponse(response) {
     const responsePayload = decodeJwtResponse(response.credential);
-    console.log("Logged in as: " + responsePayload.name);
+    console.log("Processing: " + responsePayload.name);
 
-    // REPLACE WITH YOUR RENDER BACKEND URL
-    const backendURL = 'https://shop-backend-0b4p.onrender.com'; 
-
-    fetch(`${backendURL}/api/auth/google`, {
+    fetch(`${BACKEND_URL}/api/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -18,56 +35,75 @@ function handleCredentialResponse(response) {
     .then(res => res.json())
     .then(data => {
         if(data.success) {
+            // Save Session
             localStorage.setItem('real_user_id', data.user.googleId);
             localStorage.setItem('user_name', data.user.name);
             localStorage.setItem('user_pic', data.user.picture);
-            updateAuthUI(); // Update buttons immediately
+            
+            // Redirect to Dashboard
+            window.location.href = 'index.html';
         }
     })
     .catch(err => console.error("Login Error:", err));
 }
 
+// 3. UI UPDATE (For Navbar)
 function updateAuthUI() {
     const userName = localStorage.getItem('user_name');
     const userPic = localStorage.getItem('user_pic');
-    const googleBtn = document.getElementById('google-btn');
-    const profileDiv = document.getElementById('user-profile');
+    
+    // If on login page, render the Big Button
+    if (window.location.pathname.includes('login.html')) {
+        google.accounts.id.initialize({
+            client_id: "158272157316-irpbe2f77n313ntai8oqre1uv7klngs5.apps.googleusercontent.com",
+            callback: handleCredentialResponse
+        });
+        google.accounts.id.renderButton(
+            document.getElementById("google-btn-container"),
+            { theme: "filled_black", size: "large", shape: "pill", width: "250", text: "continue_with" } 
+        );
+        return; 
+    }
 
-    if (userName && userPic) {
-        // User is Logged In
-        if(googleBtn) googleBtn.style.display = 'none';
-        if(profileDiv) {
-            profileDiv.style.display = 'flex';
-            document.getElementById('user-name').innerText = userName;
-            document.getElementById('user-pic').src = userPic;
-        }
-    } else {
-        // User is Logged Out
-        if(profileDiv) profileDiv.style.display = 'none';
-        if(googleBtn) {
-            googleBtn.style.display = 'block';
-            // Render the Google Button
-            if (typeof google !== 'undefined') {
-                 google.accounts.id.initialize({
-                    client_id: "158272157316-irpbe2f77n313ntai8oqre1uv7klngs5.apps.googleusercontent.com", // <--- PASTE CLIENT ID HERE
-                    callback: handleCredentialResponse
-                });
-                google.accounts.id.renderButton(
-                    googleBtn,
-                    { theme: "outline", size: "medium", shape: "pill" } 
-                );
-            }
-        }
+    // If on internal pages, show Profile
+    const profileDiv = document.getElementById('user-profile');
+    if (profileDiv && userName) {
+        profileDiv.style.display = 'flex';
+        document.getElementById('user-name').innerText = userName;
+        document.getElementById('user-pic').src = userPic;
+        
+        // Hide the old login button container in navbar if it exists
+        const oldBtn = document.getElementById('google-btn');
+        if(oldBtn) oldBtn.style.display = 'none';
     }
 }
 
+// 4. LOGOUT
 function logout() {
-    localStorage.removeItem('real_user_id');
-    localStorage.removeItem('user_name');
-    localStorage.removeItem('user_pic');
-    location.reload();
+    localStorage.clear(); // Wipe everything
+    window.location.href = 'login.html';
 }
 
+// 5. DELETE ACCOUNT
+function deleteAccount() {
+    const confirmDelete = confirm("⚠️ ARE YOU SURE? \n\nThis will permanently delete your account, order history, and wishlist. This action cannot be undone.");
+    
+    if (confirmDelete) {
+        const userId = localStorage.getItem('real_user_id');
+        
+        fetch(`${BACKEND_URL}/api/auth/user/${userId}`, {
+            method: 'DELETE'
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            logout(); // Auto logout after delete
+        })
+        .catch(err => alert("Error deleting account: " + err.message));
+    }
+}
+
+// Helper: Decode Token
 function decodeJwtResponse(token) {
     var base64Url = token.split('.')[1];
     var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -77,5 +113,4 @@ function decodeJwtResponse(token) {
     return JSON.parse(jsonPayload);
 }
 
-// Run on page load
 window.addEventListener('load', updateAuthUI);
