@@ -77,27 +77,45 @@ app.get('/api/wishlist/:userId', async (req, res) => {
     res.json(list ? list.items : []);
 });
 
-// --- NEW: GOOGLE LOGIN ROUTE ---
+// GOOGLE LOGIN & MERGE ROUTE
 app.post('/api/auth/google', async (req, res) => {
-    const { userData } = req.body; // Data sent from Frontend
+    const { userData, guestId } = req.body; // <--- Receive guestId from frontend
     const { sub, email, name, picture } = userData;
 
     try {
-        // Check if user already exists
+        // 1. Create or Find User
         let user = await User.findOne({ googleId: sub });
-
         if (!user) {
-            // IF NOT FOUND -> CREATE NEW USER
-            user = new User({
-                googleId: sub,
-                email,
-                name,
-                picture
-            });
+            user = new User({ googleId: sub, email, name, picture });
             await user.save();
             console.log("New User Created:", name);
-        } else {
-            console.log("User Logged In:", name);
+        }
+
+        // 2. THE MERGE LOGIC: Transfer Guest Data to Google ID
+        if (guestId) {
+            console.log(`Transferring data from Guest (${guestId}) to User (${sub})...`);
+            
+            // Transfer Cart
+            const guestCart = await Cart.findOne({ userId: guestId });
+            if (guestCart) {
+                // If user already has a cart, we might overwrite or merge. 
+                // For simplicity, we overwrite with the fresh guest session or update the ID.
+                await Cart.findOneAndUpdate(
+                    { userId: guestId }, 
+                    { userId: sub }, 
+                    { new: true }
+                );
+            }
+
+            // Transfer Wishlist
+            const guestWishlist = await Wishlist.findOne({ userId: guestId });
+            if (guestWishlist) {
+                await Wishlist.findOneAndUpdate(
+                    { userId: guestId }, 
+                    { userId: sub }, 
+                    { new: true }
+                );
+            }
         }
 
         res.json({ success: true, user });
@@ -108,26 +126,22 @@ app.post('/api/auth/google', async (req, res) => {
     }
 });
 
-// --- DELETE ACCOUNT ROUTE ---
+// DELETE ACCOUNT ROUTE
 app.delete('/api/auth/delete/:googleId', async (req, res) => {
     const googleId = req.params.googleId;
 
     try {
         // 1. Delete User Profile
-        const deletedUser = await User.findOneAndDelete({ googleId: googleId });
+        await User.findOneAndDelete({ googleId: googleId });
         
-        // 2. Delete their Cart
+        // 2. Delete Cart
         await Cart.findOneAndDelete({ userId: googleId });
         
-        // 3. Delete their Wishlist
+        // 3. Delete Wishlist
         await Wishlist.findOneAndDelete({ userId: googleId });
 
-        if (deletedUser) {
-            res.json({ success: true, message: "User deleted" });
-            console.log("Deleted user:", googleId);
-        } else {
-            res.status(404).json({ success: false, message: "User not found" });
-        }
+        res.json({ success: true, message: "All user data permanently deleted." });
+        console.log("Deleted all data for:", googleId);
 
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });

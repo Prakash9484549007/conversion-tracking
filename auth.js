@@ -22,26 +22,35 @@ const BACKEND_URL = 'https://shop-backend-0b4p.onrender.com'; // Your Render URL
 // 2. GOOGLE LOGIN RESPONSE
 function handleCredentialResponse(response) {
     const responsePayload = decodeJwtResponse(response.credential);
-    console.log("Processing: " + responsePayload.name);
+    console.log("Logged in as: " + responsePayload.name);
 
-    fetch(`${BACKEND_URL}/api/auth/google`, {
+    // 1. Get the current Guest ID (if any)
+    const currentGuestId = localStorage.getItem('guest_user_id');
+
+    // Replace with your Render URL
+    const backendURL = 'https://shop-backend-0b4p.onrender.com'; 
+
+    fetch(`${backendURL}/api/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
             token: response.credential,
-            userData: responsePayload
+            userData: responsePayload,
+            guestId: currentGuestId // <--- SEND GUEST ID TO BACKEND
         })
     })
     .then(res => res.json())
     .then(data => {
         if(data.success) {
-            // Save Session
+            // 2. Switch Identity: Remove Guest ID, Save Real ID
+            localStorage.removeItem('guest_user_id'); 
             localStorage.setItem('real_user_id', data.user.googleId);
+            
             localStorage.setItem('user_name', data.user.name);
             localStorage.setItem('user_pic', data.user.picture);
             
-            // Redirect to Dashboard
-            window.location.href = 'index.html';
+            // 3. Refresh to load the migrated cart data
+            location.reload(); 
         }
     })
     .catch(err => console.error("Login Error:", err));
