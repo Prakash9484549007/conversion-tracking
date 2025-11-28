@@ -30,9 +30,7 @@
             <a href="shop.html" class="active-link">E-Commerce Store</a>
             
             <div class="auth-container">
-                <div id="google-btn"></div>
-
-                <div id="user-profile" style="display:none;">
+                <div id="user-profile" style="display:flex;">
                     <img id="user-pic" src="" alt="Profile">
                     
                     <div class="profile-info">
@@ -88,12 +86,10 @@
     </div>
 
     <script>
-        // 1. IDENTIFY THE USER (Create a random Guest ID if not exists)
-        let userId = localStorage.getItem('guest_user_id');
-        if (!userId) {
-            userId = 'guest_' + Math.random().toString(36).substr(2, 9);
-            localStorage.setItem('guest_user_id', userId);
-        }
+        // 1. IDENTIFY THE USER
+        // We trust auth.js has already checked this. If it's missing, auth.js kicks them out.
+        let userId = localStorage.getItem('real_user_id'); 
+        console.log("Current User:", userId);
         console.log("Current User:", userId);
 
         let products = [];

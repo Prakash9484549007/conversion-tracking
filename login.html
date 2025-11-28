@@ -10,43 +10,36 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
-            height: 100vh;
+            background-color: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
             margin: 0;
-            color: white;
         }
         .login-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 20px;
+            background: white;
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            width: 350px;
-            border: 1px solid rgba(255,255,255,0.1);
+            max-width: 400px;
+            width: 90%;
         }
-        h1 { margin-bottom: 10px; font-weight: 600; }
-        p { color: #ccc; margin-bottom: 30px; font-size: 14px; }
-        
-        /* The Google Button Container */
-        #google-btn-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
+        h1 { margin-bottom: 10px; color: #333; }
+        p { color: #666; margin-bottom: 30px; }
+        /* Center the Google Button */
+        #google-btn { display: flex; justify-content: center; }
     </style>
 </head>
 <body>
 
     <div class="login-card">
-        <h1>Welcome</h1>
-        <p>Sign In or Create an Account to access the dashboard.</p>
+        <h1>Welcome Back</h1>
+        <p>Please sign in with Google to access the Conversion Tracking Dashboard.</p>
         
-        <div id="google-btn-container"></div>
-        <div id="google-btn"></div> </div>
+        <div id="google-btn"></div>
+    </div>
 
 </body>
 </html>
