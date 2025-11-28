@@ -52,7 +52,7 @@ window.onload = function() {
     // If we are on the login page, render the button
     if(document.getElementById('google-btn')) {
         google.accounts.id.initialize({
-            client_id: "YOUR_GOOGLE_CLIENT_ID", // <--- PASTE YOUR ID HERE
+            client_id: "158272157316-irpbe2f77n313ntai8oqre1uv7klngs5.apps.googleusercontent.com", // <--- PASTE YOUR ID HERE
             callback: handleCredentialResponse
         });
         google.accounts.id.renderButton(
