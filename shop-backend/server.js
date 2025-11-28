@@ -148,5 +148,49 @@ app.delete('/api/auth/delete/:googleId', async (req, res) => {
     }
 });
 
+const axios = require('axios');
+
+// --- GETRESPONSE CONFIGURATION ---
+const GR_API_KEY = "eydxdrs9p3bd317190y1nbjs0g7sdsl6"; 
+const GR_CAMPAIGN_ID = "fVYmT"; 
+
+// ROUTE: Handle VIP Form Submission
+app.post('/api/marketing/subscribe', async (req, res) => {
+    const { name, email, phone, gender, interest, budget, city } = req.body;
+
+    try {
+        // 1. Prepare Data for GetResponse
+        const grData = {
+            name: name,
+            email: email,
+            campaign: {
+                campaignId: GR_CAMPAIGN_ID // <--- Uses the constant variable now
+            },
+            customFieldValues: [
+                { customFieldId: "nKG8Qu", value: [phone] },
+                { customFieldId: "nKG8Jk", value: [city] },
+                { customFieldId: "nKGKET", value: [budget] },
+                { customFieldId: "nKG8xT", value: [gender] },
+                { customFieldId: "nKG8S2", value: [interest] }
+            ]
+        };
+
+        // 2. Send to GetResponse API
+        await axios.post('https://api.getresponse.com/v3/contacts', grData, {
+            headers: {
+                // FIXED LINE BELOW:
+                'X-Auth-Token': `api-key ${GR_API_KEY}`, 
+                'Content-Type': 'application/json'
+            }
+        });
+
+        res.json({ success: true, message: "Added to GetResponse!" });
+
+    } catch (error) {
+        console.error("GetResponse Error:", error.response?.data || error.message);
+        res.status(500).json({ success: false, error: "Failed to subscribe." });
+    }
+});
+
 // START SERVER
 app.listen(5000, () => console.log("Server running on port 5000"));
