@@ -107,25 +107,24 @@
 
 // auth.js - SMART REDIRECT SYSTEM
 
+// auth.js - ROBUST REDIRECT SYSTEM
+
 // 1. THE SECURITY GUARD (Runs immediately)
 (function checkAuth() {
     const userId = localStorage.getItem('real_user_id');
-    const currentPath = window.location.href; // Get full URL
+    const currentPath = window.location.href; 
     const isLoginPage = currentPath.includes('login.html');
 
+    // SCENARIO 1: Not logged in, trying to access protected pages
     if (!userId && !isLoginPage) {
-        // NOT LOGGED IN?
-        // Step A: Remember where they were trying to go
-        sessionStorage.setItem('return_to', currentPath);
-        
-        // Step B: Kick them to Login
+        sessionStorage.setItem('return_to', currentPath); // Remember where they wanted to go
         window.location.href = 'login.html';
     } 
+    // SCENARIO 2: Logged in, but sitting on login page
     else if (userId && isLoginPage) {
-        // ALREADY LOGGED IN?
-        // Check if there is a saved return place, otherwise default to Shop
+        // Redirect them out of here immediately
         const returnTo = sessionStorage.getItem('return_to');
-        if (returnTo) {
+        if (returnTo && !returnTo.includes('login.html')) {
             window.location.href = returnTo;
         } else {
             window.location.href = 'index.html';
@@ -138,7 +137,6 @@ function handleCredentialResponse(response) {
     const responsePayload = decodeJwtResponse(response.credential);
     console.log("Logged in as: " + responsePayload.name);
 
-    // REPLACE WITH YOUR RENDER BACKEND URL
     const backendURL = 'https://shop-backend-0b4p.onrender.com'; 
 
     fetch(`${backendURL}/api/auth/google`, {
@@ -157,40 +155,53 @@ function handleCredentialResponse(response) {
             localStorage.setItem('real_user_id', data.user.googleId);
             localStorage.setItem('user_name', data.user.name);
             localStorage.setItem('user_pic', data.user.picture);
-            localStorage.removeItem('guest_user_id'); // Cleanup guest
+            localStorage.removeItem('guest_user_id'); 
 
-            // === SMART REDIRECT LOGIC ===
-            const returnTo = sessionStorage.getItem('return_to');
+            // === FIXED REDIRECT LOGIC ===
+            let returnTo = sessionStorage.getItem('return_to');
+
+            // SAFETY CHECK: If 'return_to' is the login page itself, ignore it!
+            if (returnTo && returnTo.includes('login.html')) {
+                returnTo = null;
+            }
             
             if (returnTo) {
-                // Scenario B: They came from a specific page (e.g., Iframe/WP Form)
-                // Clear the memory and send them back
-                sessionStorage.removeItem('return_to');
+                // Scenario B: User came from a specific page (Shop, WP Form, etc)
+                sessionStorage.removeItem('return_to'); // Clear memory
                 window.location.href = returnTo;
             } else {
-                // Scenario A: They came directly to login.html
-                window.location.href = 'index.html'; 
+                // Scenario A: User came directly to Login, send to Home
+                // Using '/' is safer on Vercel than 'index.html'
+                window.location.href = '/index.html'; 
             }
+        } else {
+            // IF BACKEND FAILS
+            alert("Login Failed: " + (data.error || "Unknown Error"));
+            console.error("Backend Error:", data);
         }
     })
-    .catch(err => console.error("Login Error:", err));
+    .catch(err => {
+        console.error("Network/Fetch Error:", err);
+        alert("Connection Error. Please try again.");
+    });
 }
 
 // 3. RENDER BUTTON & UI
 window.onload = function() {
-    // If on login page, render button
-    if(document.getElementById('google-btn')) {
+    // Render Google Button (Only if the element exists)
+    const btnContainer = document.getElementById('google-btn');
+    if(btnContainer) {
         google.accounts.id.initialize({
             client_id: "158272157316-irpbe2f77n313ntai8oqre1uv7klngs5.apps.googleusercontent.com", 
             callback: handleCredentialResponse
         });
         google.accounts.id.renderButton(
-            document.getElementById("google-btn"),
+            btnContainer,
             { theme: "outline", size: "large", shape: "pill", width: "250" } 
         );
     }
 
-    // Update Navbar Profile
+    // Update Navbar Profile (Only if logged in)
     const userName = localStorage.getItem('user_name');
     const userPic = localStorage.getItem('user_pic');
     
@@ -198,8 +209,10 @@ window.onload = function() {
         document.getElementById('user-profile').style.display = 'flex';
         document.getElementById('user-name').innerText = userName;
         document.getElementById('user-pic').src = userPic;
+        
+        // Hide google button inside navbar if user is logged in
         if(document.getElementById('google-btn')) {
-             // Hide the login button if it exists in navbar (not main login page)
+             // Only hide if we are NOT on the dedicated login page
              if(!window.location.href.includes('login.html')) {
                  document.getElementById('google-btn').style.display = 'none';
              }
@@ -209,7 +222,7 @@ window.onload = function() {
 
 function logout() {
     localStorage.clear();
-    sessionStorage.clear(); // Clear redirect history too
+    sessionStorage.clear(); 
     window.location.href = 'login.html';
 }
 
