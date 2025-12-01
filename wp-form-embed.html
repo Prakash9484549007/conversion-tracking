@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WPForms - Ajax Version</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="auth.js"></script>
+    <style>
+        /* Specific Styles for WPForms Look */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin: 15px 0 25px 0;
+        }
+        .checkbox-container input {
+            width: auto; /* Prevent full width */
+            margin: 0 10px 0 0;
+            cursor: pointer;
+        }
+        .checkbox-container label {
+            margin: 0;
+            font-weight: normal;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        /* File Upload Style */
+        input[type="file"] {
+            background: white;
+            padding: 10px;
+            border: 1px dashed #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- <header class="site-header">
+        
+        <div class="site-branding">
+            <span>Conversion</span> Tracking
+        </div>
+
+        <nav>
+            
+            <div class="dropdown">
+                <button class="dropbtn">Contact Form 7 
+                    <i class="fa fa-caret-down"></i> </button>
+                <div class="dropdown-content">
+                    <a href="index.html">Redirect Form</a>
+                    <a href="ajax.html">AJAX Form</a>
+                </div>
+            </div> 
+
+            <a href="wp-form.html">WP Form</a>
+            <a href="fluent-form.html">Fluent Form</a>
+            <a href="shop.html">E-Commerce Store</a>
+            <a href="vip-form.html">VIP Club</a>
+            
+            <div class="auth-container">
+                <div id="user-profile" style="display:flex;">
+                    <img id="user-pic" src="" alt="Profile">
+                    
+                    <div class="profile-info">
+                        <span id="user-name"></span>
+                        <button onclick="deleteAccount()" class="delete-btn">Delete Account</button>
+                    </div>
+                    
+                    <button onclick="logout()" class="logout-btn">Logout</button>
+                </div>
+            </div>
+
+        </nav>
+    </header> -->
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init("KdGRcRiaKId5_bMWn"); // Your Public Key
+        })();
+    </script>
+
+    <div class="contact-container">
+        
+        <form id="wp-ajax-form">
+            <h2>AJAX WP Forms</h2>
+            <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Standard AJAX form with file & validation.</p>
+            
+            <label>Full Name</label>
+            <input type="text" name="full_name" required>
+
+            <label>Email Address</label>
+            <input type="email" name="email" id="email_field" required>
+
+            <label>Phone Number</label>
+            <input type="tel" name="mobile" id="mobile_field" placeholder="10-digit number" required>
+
+            <label>Subject</label>
+            <input type="text" name="subject" required>
+
+            <label>Message</label>
+            <textarea name="message" rows="4" required></textarea>
+
+            <label>Upload Document (PDF/JPG)</label>
+            <input type="file" name="my_file">
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="terms_checkbox" required>
+                <label for="terms_checkbox">I agree to the Terms and Conditions</label>
+            </div>
+
+            <button type="submit" id="submit_btn">Send Application</button>
+        </form>
+
+        <div id="success_msg" class="success-message">
+            <h2>✔ Application Sent!</h2>
+            <p>We have received your details and documents.</p>
+            <button onclick="location.reload()" style="margin-top:10px; background:#333;">Submit Another</button>
+        </div>
+
+    </div>
+
+    <script>
+    // ▼▼▼ PASTE YOUR GOOGLE WEB APP URL HERE ▼▼▼
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxMjZoxFV_ffqSV_a25QUC01U0q3K17CTT9LcRrYyvIvjprIeis-SFJwAYk1hCz8iqh/exec';
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+    const form = document.getElementById('wp-ajax-form');
+    const successMsg = document.getElementById('success_msg');
+    const btn = document.getElementById('submit_btn');
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+
+        const fileInput = document.querySelector('input[name="my_file"]');
+        const file = fileInput.files[0];
+
+        // 1. LIMIT FILE SIZE (Max 10MB)
+        if (file && file.size > 2 * 1024 * 1024) {
+            alert("File is too large! Please upload a file smaller than 10MB.");
+            return; // Stop everything
+        }
+
+        // Validation: Check Terms
+        if(!document.getElementById('terms_checkbox').checked) {
+            alert("Please agree to the terms.");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = 'Uploading...';
+
+        // Helper function to read file as Base64
+        const reader = new FileReader();
+        
+        // If file is selected, read it. If not, run the "null" path.
+        if (file) {
+            reader.readAsDataURL(file);
+        } else {
+            // No file uploaded? Just send the text data
+            sendDataToSheet(null);
+            return; // Stop here, the reader.onload will handle the rest if file exists
+        }
+
+        reader.onload = function(e) {
+            console.log("File read successfully. Starting upload..."); // Debug log
+            
+            const rawBase64 = reader.result.split(',')[1];
+            
+            const fileInfo = {
+                fileData: rawBase64,
+                mimeType: file.type,
+                fileName: file.name
+            };
+            
+            // Log the payload size to check if it's too big
+            console.log("Payload size:", JSON.stringify(fileInfo).length); 
+
+            sendDataToSheet(fileInfo);
+        };
+
+        function sendDataToSheet(fileInfo) {
+            // 1. Construct the JSON Payload
+            const payload = {
+                sheetName: 'WPForms', // <--- ADD THIS LINE (Must match tab name exactly)
+                full_name: document.querySelector('input[name="full_name"]').value,
+                email: document.querySelector('input[name="email"]').value,
+                mobile: document.querySelector('input[name="mobile"]').value,
+                subject: document.querySelector('input[name="subject"]').value,
+                message: document.querySelector('textarea[name="message"]').value,
+                // Spread the file info if it exists
+                ...(fileInfo || {}) 
+            };
+
+            // 2. Send JSON to Google Script
+            // 2. Send JSON to Google Script
+            fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json()) // <--- VITAL CHANGE: Read the response JSON
+            .then(data => {
+                // CHECK IF SCRIPT FAILED
+                if (data.result !== 'success') {
+                    throw new Error(data.error || "Script returned an error");
+                }
+
+                console.log('Sheet Success!', data);
+                
+                // 3. Send Email (Manual Mode)
+                const serviceID = 'service_9it87w5'; 
+                const templateID = 'template_57mjstm';
+                
+                const emailParams = {
+                    full_name: document.querySelector('input[name="full_name"]').value,
+                    email: document.querySelector('input[name="email"]').value,
+                    mobile: document.querySelector('input[name="mobile"]').value,
+                    subject: document.querySelector('input[name="subject"]').value,
+                    message: document.querySelector('textarea[name="message"]').value
+                };
+
+                return emailjs.send(serviceID, templateID, emailParams);
+            })
+            .then(() => {
+                // 4. Success UI
+                form.style.display = 'none';
+                successMsg.style.display = 'block';
+                
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({
+                    'event': 'form_submission_success',
+                    'user_email': payload.email
+                });
+            })
+            .catch(error => {
+                console.error('Error!', error);
+                // THIS WILL NOW SHOW THE REAL GOOGLE ERROR
+                alert("Submission Failed: " + error.message); 
+                btn.disabled = false;
+                btn.innerText = 'Send Application';
+            });
+        }
+    });
+</script>
