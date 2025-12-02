@@ -649,6 +649,7 @@ button:hover {
     width: auto;      /* Keeps the aspect ratio perfect */
     vertical-align: middle;
     transition: transform 0.3s ease;
+    border-radius: 15px; /* Adjust this number: 10px for soft corners, 50% for a circle */
 }
 
 .logo-img:hover {
@@ -659,6 +660,17 @@ button:hover {
 .site-branding {
     padding-top: 10px;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
+}
+@media screen and (max-width: 768px) {
+    .site-header {
+        padding: 15px;
+        flex-direction: column;
+        
+        /* ▼▼▼ CHANGE THIS LINE ▼▼▼ */
+        align-items: flex-start; /* Changed from 'center' to 'flex-start' */
+    }
+    
+    /* ... rest of your mobile css ... */
 }
