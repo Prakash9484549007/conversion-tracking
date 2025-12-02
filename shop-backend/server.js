@@ -192,5 +192,33 @@ app.post('/api/marketing/subscribe', async (req, res) => {
     }
 });
 
+const Razorpay = require('razorpay');
+
+// --- RAZORPAY CONFIGURATION ---
+const razorpay = new Razorpay({
+    key_id: "rzp_test_RmfKScXAi9Jpy4",
+    key_secret: "JZNXDHvYky517Vu1OjkzXacA"
+});
+
+// ROUTE: Create Payment Order
+app.post('/api/payment/create-order', async (req, res) => {
+    const { amount } = req.body; // Amount in Rupees
+
+    try {
+        const options = {
+            amount: amount * 100, // Razorpay takes amount in Paisa (1 Rupee = 100 Paisa)
+            currency: "INR",
+            receipt: "receipt_" + Math.random().toString(36).substring(7),
+        };
+
+        const order = await razorpay.orders.create(options);
+        res.json({ success: true, order });
+
+    } catch (error) {
+        console.error("Razorpay Error:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // START SERVER
 app.listen(5000, () => console.log("Server running on port 5000"));
