@@ -643,3 +643,22 @@ button:hover {
         align-items: center; /* Center text on mobile */
     }
 }
+/* LOGO STYLING */
+.logo-img {
+    max-height: 60px; /* Adjust this to fit your navbar height */
+    width: auto;      /* Keeps the aspect ratio perfect */
+    vertical-align: middle;
+    transition: transform 0.3s ease;
+}
+
+.logo-img:hover {
+    transform: scale(1.05); /* Subtle zoom effect on hover */
+}
+
+/* Adjust branding container to fit image */
+.site-branding {
+    padding-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
