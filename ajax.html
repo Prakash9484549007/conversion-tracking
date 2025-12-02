@@ -11,43 +11,31 @@
 <body>
 
     <header class="site-header">
-        
-        <div class="site-branding">
-            <a href="index.html"> <img src="logo.png" alt="Conversion Tracking Logo" class="logo-img"></a>
+    
+    <div class="site-branding">
+        <a href="index.html">
+            <img src="logo.png" alt="Logo" class="logo-img">
+        </a>
+    </div>
+
+    <nav>
+        <div class="dropdown">
+            <button class="dropbtn">Contact Form 7 <i class="fa fa-caret-down"></i></button>
+            <div class="dropdown-content">
+                <a href="index.html">Redirect Form</a>
+                <a href="ajax.html">AJAX Form</a>
+            </div>
+        </div> 
+        <a href="wp-form.html">WP Form</a>
+        <a href="fluent-form.html">Fluent Form</a>
+        <a href="shop.html">E-Commerce</a>
+        <a href="vip-form.html" style="color:#FFD700;">VIP Club</a>
+    </nav>
+
+    <div class="auth-container">
         </div>
 
-        <nav>
-            
-            <div class="dropdown">
-                <button class="dropbtn">Contact Form 7 
-                    <i class="fa fa-caret-down"></i> </button>
-                <div class="dropdown-content">
-                    <a href="index.html">Redirect Form</a>
-                    <a href="ajax.html">AJAX Form</a>
-                </div>
-            </div> 
-
-            <a href="wp-form.html">WP Form</a>
-            <a href="fluent-form.html">Fluent Form</a>
-            <a href="shop.html">E-Commerce Store</a>
-            <a href="vip-form.html">VIP Club</a>
-
-            <div class="auth-container">
-                <div id="user-profile" style="display:flex;">
-                    <img id="user-pic" src="" alt="Profile">
-                    
-                    <div class="profile-info">
-                        <span id="user-name"></span>
-                        <button onclick="deleteAccount()" class="delete-btn">Delete Account</button>
-                    </div>
-                    
-                    <button onclick="logout()" class="logout-btn">Logout</button>
-                </div>
-            </div>
-
-
-        </nav>
-    </header>
+</header>
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
