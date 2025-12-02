@@ -117,8 +117,8 @@
             console.log('Sheet Success!');
             const serviceID = 'service_9it87w5'; 
             const templateID = 'template_57mjstm';
-            // return emailjs.sendForm(serviceID, templateID, form);
-            return Promise.resolve(); // Fake success
+            return emailjs.sendForm(serviceID, templateID, form);
+            // return Promise.resolve(); // Fake success
         })
         .then(() => {
             // 3. Redirect
