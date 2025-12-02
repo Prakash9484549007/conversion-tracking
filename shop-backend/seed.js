@@ -23,7 +23,7 @@ const products = [
             { id: 109, name: "Analytics Report", price: 1200, category: "Service", img: "https://placehold.co/300x200?text=Analytics" },
             { id: 110, name: "E-book: Marketing", price: 299, category: "Education", img: "https://placehold.co/300x200?text=E-Book" },
             { id: 111, name: "Video Edit", price: 2000, category: "Service", img: "https://placehold.co/300x200?text=Video+Edit" },
-            { id: 112, name: "Hosting Setup", price: 500, category: "Tech", img: "https://placehold.co/300x200?text=Server+Setup" }
+            { id: 112, name: "Hosting Setup", price: 10, category: "Tech", img: "https://placehold.co/300x200?text=Server+Setup" }
 ];
 
 const seedDB = async () => {
