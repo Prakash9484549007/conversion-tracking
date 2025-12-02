@@ -156,9 +156,10 @@
                 });
                 const result = await response.json();
                 
-                if(result.success) {
+               if(result.success) {
                     alert("Welcome to the VIP Club! Check your email.");
-                    window.location.href = "shop.html";
+                    e.target.reset(); // Clears the form inputs
+                    // No redirect happens now. User stays here.
                 } else {
                     alert("Error: " + result.error);
                 }
