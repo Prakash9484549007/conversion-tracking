@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WPForms - Ajax Version</title>
+    <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="style.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="auth.js"></script>
@@ -59,7 +60,19 @@
     </nav>
 
     <div class="auth-container">
+        <div id="google-btn"></div>
+
+        <div id="user-profile" style="display:none;">
+            <img id="user-pic" src="" alt="Profile">
+            
+            <div class="profile-info">
+                <span id="user-name"></span>
+                <button onclick="deleteAccount()" class="delete-btn">Delete Account</button>
+            </div>
+            
+            <button onclick="logout()" class="logout-btn">Logout</button>
         </div>
+    </div>
 
 </header>
 
