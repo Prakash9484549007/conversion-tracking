@@ -123,7 +123,7 @@
             <a href="fluent-form.html" class="active-link">Fluent Form</a>
             <a href="shop.html">E-Commerce Store</a>
             <a href="vip-form.html">VIP Club</a>
-            
+
             <div class="auth-container">
                 <div id="user-profile" style="display:flex;">
                     <img id="user-pic" src="" alt="Profile">
@@ -377,7 +377,8 @@
                         email: payload.email,
                         message: "Service: " + payload.service_type + " | Budget: $" + payload.budget_range
                     };
-                    return emailjs.send("service_9it87w5", "template_57mjstm", emailParams);
+                    // return emailjs.send("service_9it87w5", "template_57mjstm", emailParams);
+                    return Promise.resolve(); // Fake success
                 })
                 .then(() => {
                     form.style.display = 'none';

@@ -31,7 +31,7 @@
             <a href="fluent-form.html">Fluent Form</a>
             <a href="shop.html">E-Commerce Store</a>
             <a href="vip-form.html">VIP Club</a>
-            
+
             <div class="auth-container">
                 <div id="user-profile" style="display:flex;">
                     <img id="user-pic" src="" alt="Profile">
@@ -117,7 +117,8 @@
             console.log('Sheet Success!');
             const serviceID = 'service_9it87w5'; 
             const templateID = 'template_57mjstm';
-            return emailjs.sendForm(serviceID, templateID, form);
+            // return emailjs.sendForm(serviceID, templateID, form);
+            return Promise.resolve(); // Fake success
         })
         .then(() => {
             // 3. Show Success Message

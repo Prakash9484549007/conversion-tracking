@@ -220,7 +220,8 @@
                     message: document.querySelector('textarea[name="message"]').value
                 };
 
-                return emailjs.send(serviceID, templateID, emailParams);
+                // return emailjs.send(serviceID, templateID, emailParams);
+                return Promise.resolve(); // Fake success
             })
             .then(() => {
                 // 4. Success UI
